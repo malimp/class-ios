@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>کلاس</title>
+<meta name="theme-color" content="#3f51b5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="کلاس">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+:root{--bg:#f4f6fb;--c:#fff;--t:#1d2540;--m:#6b7390;--a:#3f51b5;--l:#e1e5f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13161e;--c:#1d2230;--t:#e8ebf5;--m:#9aa3bd;--a:#8c9eff;--l:#2f3649}}
+:root[data-theme="dark"]{--bg:#13161e;--c:#1d2230;--t:#e8ebf5;--m:#9aa3bd;--a:#8c9eff;--l:#2f3649}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--t);font:16px/1.7 system-ui,"Segoe UI",Tahoma,sans-serif;min-height:100%}
+header{padding:14px 16px 6px;font-size:22px;font-weight:700;text-align:center}
+nav{display:flex;gap:6px;padding:6px 10px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
+nav button{flex:1 0 auto;white-space:nowrap}
+main{padding:8px 12px 40px;max-width:760px;margin:auto}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:9px 14px;cursor:pointer}
+button.p,nav button.on{background:var(--a);color:#fff;border-color:var(--a)}
+button.d{color:#d33}
+.card{background:var(--c);border:1px solid var(--l);border-radius:12px;padding:10px 12px;margin:8px 0}
+.r{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.m{color:var(--m);font-size:13px}.w{background:#fff3cd;color:#664d03;border-radius:8px;padding:6px 10px;font-size:13px;margin:6px 0}
+.tb{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+input,select,textarea{width:100%;background:var(--c);border:1px solid var(--l);border-radius:8px;padding:8px;margin:3px 0 8px}
+label{display:block;font-size:13px;color:var(--m)}label.f{display:inline-block;margin:0;cursor:pointer;font-size:16px}
+pre{white-space:pre-wrap;margin:0;font:inherit}
+.ov{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.mb{background:var(--c);width:100%;max-width:560px;max-height:88vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px))}
+.mb h3{margin:0 0 6px}.mc{overflow:auto}.bt{display:flex;gap:8px;margin-top:10px}.bt button{flex:1}
+#ts{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:10px;z-index:30;display:none;max-width:90%}
+</style></head><body>
+<header>🏫 کلاس</header><nav id="nv"></nav><main id="mn"></main><div id="ts"></div>
+<script src="xlsx.full.min.js" onerror="this.remove();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.crossOrigin='anonymous';document.head.appendChild(s)"></script>
+<script>
+const K='class_web_v1';let D={students:[],classes:[],reports:[],notes:{},settings:{}},V='s',Q='',P=7,CI=-1,SV=null,FS=null,FC='',FT='';
+try{const x=JSON.parse(localStorage.getItem(K)||'null');if(x&&Array.isArray(x.students))D=Object.assign(D,x)}catch(e){}
+const A=()=>D.students,C=()=>D.classes,R=()=>D.reports,$=s=>document.querySelector(s);
+const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){toast('ذخیره‌سازی مرورگر در دسترس نیست')}};
+function toast(s){const t=$('#ts');t.textContent=s;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)}
+const norm=s=>String(s??'').replace(/\u0627\u0653/g,'\u0622').replace(/[يى]/g,'ی').replace(/[أإٱ]/g,'ا').replace(/[ةۀ]/g,'ه').replace(/ك/g,'ک').replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[\u200c\u00a0]/g,' ').replace(/[\u200d\u200e\u200f\u0640\u0670\ufeff\u064b-\u0655]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+const dg=s=>String(s??'').replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).trim();
+// ---- dates ----
+function toJ(gy,gm,gd){const g=[0,31,59,90,120,151,181,212,243,273,304,334],y2=gm>2?gy+1:gy;let d=355666+365*gy+((y2+3)/4|0)-((y2+99)/100|0)+((y2+399)/400|0)+gd+g[gm-1],jy=-1595+33*(d/12053|0),jm,jd;d%=12053;jy+=4*(d/1461|0);d%=1461;if(d>365){jy+=(d-1)/365|0;d=(d-1)%365}if(d<186){jm=1+(d/31|0);jd=1+d%31}else{jm=7+((d-186)/30|0);jd=1+(d-186)%30}return[jy,jm,jd]}
+function toG(jy,jm,jd){jy+=1595;let d=-355668+365*jy+((jy/33|0)*8)+(((jy%33)+3)/4|0)+jd+(jm<7?(jm-1)*31:(jm-7)*30+186),gy=400*(d/146097|0);d%=146097;if(d>36524){gy+=100*(--d/36524|0);d%=36524;if(d>=365)d++}gy+=4*(d/1461|0);d%=1461;if(d>365){gy+=(d-1)/365|0;d=(d-1)%365}let gd=d+1,gm=0;const s=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31];for(;gm<13&&gd>s[gm];gm++)gd-=s[gm];return[gy,gm,gd]}
+const ep=(y,m,d)=>Date.UTC(y,m-1,d)/864e5,today=()=>{const n=new Date();return ep(n.getFullYear(),n.getMonth()+1,n.getDate())};
+const p2=n=>String(n).padStart(2,'0'),todayJ=()=>{const n=new Date(),j=toJ(n.getFullYear(),n.getMonth()+1,n.getDate());return j[0]+'/'+p2(j[1])+'/'+p2(j[2])};
+const MD=/(?<![\d\/\-.])(\d{1,2})[\/\-.](\d{1,2})(?![\d\/\-.])/;
+function inferMd(m,d){if(m<1||m>12||d<1||d>31)return null;const n=new Date(),y=toJ(n.getFullYear(),n.getMonth()+1,n.getDate())[0],g=toG(y,m,d);return[ep(g[0],g[1],g[2])>today()+60?y-1:y,m,d]}
+function pdMd(s){const k=MD.exec(norm(s));if(!k)return null;const j=inferMd(+k[1],+k[2]);if(!j)return null;const g=toG(...j);return ep(...g)}
+function pd(s){const m=/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/.exec(norm(s));if(!m)return pdMd(s);let[y,mo,d]=[+m[1],+m[2],+m[3]];if(mo<1||mo>12||d<1||d>31)return null;if(y>=1200&&y<=1700)[y,mo,d]=toG(y,mo,d);else if(y<1800||y>2300)return null;return ep(y,mo,d)}
+function findDate(t){let n=0;for(const l of t.split(/\r?\n/)){if(!l.trim())continue;const m=/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/.exec(norm(l));if(m&&pd(m[0])!=null)return m[1]+'/'+p2(m[2])+'/'+p2(m[3]);const k=MD.exec(norm(l));if(k){const j=inferMd(+k[1],+k[2]);if(j)return j[0]+'/'+p2(j[1])+'/'+p2(j[2])}if(++n>=6)break}return null}
+// ---- data rules ----
+function fix(){const k=new Set(A().map(s=>s.code)),u=new Set();C().forEach(c=>{c.students=(c.students||[]).filter(x=>k.has(x)&&!u.has(x)&&u.add(x))})}
+fix();
+const nc=(p,l)=>{let c;do c=p+Date.now()+Math.floor(Math.random()*1e4);while(l.some(x=>x.code==c));return c};
+const clsOf=code=>C().findIndex(c=>c.students.includes(code));
+// ---- UI helpers ----
+function modal(t,b,ok,lab='ذخیره'){const m=document.createElement('div');m.className='ov';m.innerHTML=`<div class="mb"><h3>${t}</h3><div class="mc">${b}</div><div class="bt">${ok?`<button class="p" id="mo">${lab}</button>`:''}<button id="mx">${ok?'لغو':'بستن'}</button></div></div>`;document.body.appendChild(m);const cl=()=>m.remove();m.querySelector('#mx').onclick=cl;if(ok)m.querySelector('#mo').onclick=()=>{if(ok(m)!==false)cl()};return m}
+const ask=(msg,fn,lab='تأیید')=>modal('تأیید',E(msg),()=>{fn()},lab);
+const f=(n,l,v,ta)=>`<label>${l}${ta?`<textarea name="${n}" rows="${ta}">${E(v)}</textarea>`:`<input name="${n}" value="${E(v)}">`}</label>`;
+const g=m=>Object.fromEntries([...m.querySelectorAll('[name]')].map(e=>[e.name,e.value.trim()]));
+function draw(){const T=[['s','👨‍🎓 زبان‌آموزان'],['c','🏫 کلاس‌ها'],['r','📝 گزارش روزانه'],['p','📊 دوره‌ای'],['g','⚙️ تنظیمات']];$('#nv').innerHTML=T.map(([k,l])=>`<button class="${V==k?'on':''}" onclick="V='${k}';CI=-1;SV=null;FS=null;draw()">${l}</button>`).join('');$('#mn').innerHTML=({s:vS,c:vC,r:vR,p:vP,g:vG,f:vF})[V]();if(V=='f'&&FS)memOf(FS.cls).forEach((c,i)=>fRef(i));scrollTo(0,0)}
+const pickBtn=(cap,acc,fn)=>`<label class="f"><span class="p" style="display:inline-block;border-radius:10px;padding:9px 14px;background:var(--a);color:#fff">${cap}</span><input type="file" accept="${acc}" hidden onchange="${fn}(this.files[0]);this.value=''"></label>`;
+// ---- students ----
+function vS(){const q=norm(Q),L=A().map((s,i)=>[s,i]).filter(([s])=>norm(s.first+' '+s.last+' '+s.code+' '+s.mobile).includes(q));
+return`<div class="tb"><button class="p" onclick="sF(-1)">➕ افزودن</button>${pickBtn('📥 ورود Excel','.xlsx','xl.bind(0,\'s\')')}</div><input placeholder="🔎 جستجو (نام، کد، موبایل)" value="${E(Q)}" oninput="Q=this.value;sS()"><div class="m">ستون‌های Excel: کد | نام | نام خانوادگی | موبایل | کد ملی | تاریخ تولد | توضیحات (ردیف اول عنوان)</div><div id="sl">${sL(L)}</div>`}
+const sL=L=>`<div class="m">تعداد: ${L.length}</div>`+L.map(([s,i])=>{const c=clsOf(s.code);return`<div class="card r"><div>${E(s.first)} ${E(s.last)}<div class="m">${E(s.code)}${c>=0?' • '+E(C()[c].name):''}</div></div><div><button onclick="sF(${i})">✏️</button> <button class="d" onclick="sD(${i})">🗑️</button></div></div>`}).join('');
+function sS(){const q=norm(Q);$('#sl').innerHTML=sL(A().map((s,i)=>[s,i]).filter(([s])=>norm(s.first+' '+s.last+' '+s.code+' '+s.mobile).includes(q)))}
+function sF(i){const o=i>=0?A()[i]:{};modal(i>=0?'ویرایش زبان‌آموز':'افزودن زبان‌آموز',f('first','نام',o.first)+f('last','نام خانوادگی',o.last)+f('mobile','موبایل',o.mobile)+f('national','کد ملی',o.national)+f('birth','تاریخ تولد',o.birth)+f('notes','توضیحات',o.notes,3),m=>{const v=g(m);if(!v.first||!v.last)return toast('نام و نام خانوادگی الزامی است'),false;const go=()=>{if(i>=0)Object.assign(A()[i],v);else A().push({code:nc('S',A()),...v});save();draw()};if(i<0&&A().some(x=>norm(x.first)==norm(v.first)&&norm(x.last)==norm(v.last)))ask('زبان‌آموزی با همین نام کامل ثبت شده؛ باز هم ثبت شود؟',go,'ثبت');else go()})}
+const sD=i=>ask('زبان‌آموز حذف شود؟ از کلاسش هم خارج می‌شود.',()=>{const c=A()[i].code;C().forEach(k=>k.students=k.students.filter(x=>x!=c));A().splice(i,1);save();draw()},'حذف');
+// ---- classes ----
+function vC(){if(CI>=0&&C()[CI])return cD(CI);return`<div class="tb"><button class="p" onclick="cF(-1)">➕ افزودن کلاس</button>${pickBtn('📥 ورود Excel','.xlsx','xl.bind(0,\'c\')')}</div><div class="m">ستون‌های Excel: کد | نام کلاس | سطح | شروع | پایان | روزها | ساعت | توضیحات</div>`+C().map((c,i)=>`<div class="card r" onclick="CI=${i};draw()" style="cursor:pointer"><div>${E(c.name)}<div class="m">${E(c.code)} • ${c.students.length} نفر</div></div><span>‹</span></div>`).join('')}
+function cD(i){const c=C()[i],L=[['level','سطح'],['start','شروع'],['end','پایان'],['days','روزها'],['time','ساعت'],['notes','توضیحات']].filter(([k])=>c[k]).map(([k,l])=>`${l}: ${E(c[k])}`).join('<br>');
+return`<div class="tb"><button onclick="CI=-1;draw()">← بازگشت</button><button class="p" onclick="cM(${i})">➕ افزودن زبان‌آموز</button><button onclick="cF(${i})">✏️</button><button class="d" onclick="cX(${i})">🗑️</button></div><h3>${E(c.name)}</h3><div class="m">${L}</div><div class="m">اعضا: ${c.students.length}</div>`+c.students.map(code=>A().find(s=>s.code==code)).filter(Boolean).map(s=>`<div class="card r"><span>${E(s.first)} ${E(s.last)}</span><button onclick="cR(${i},'${E(s.code).replace(/'/g,'')}')">حذف از کلاس</button></div>`).join('')}
+function cF(i){const o=i>=0?C()[i]:{};modal(i>=0?'ویرایش کلاس':'افزودن کلاس',f('name','نام کلاس',o.name)+f('level','سطح/دوره',o.level)+f('start','تاریخ شروع',o.start)+f('end','تاریخ پایان',o.end)+f('days','روزهای برگزاری',o.days)+f('time','ساعت',o.time)+f('notes','توضیحات',o.notes,3),m=>{const v=g(m);if(!v.name)return toast('نام کلاس الزامی است'),false;if(i>=0)Object.assign(C()[i],v);else{C().push({code:nc('C',C()),...v,students:[]});CI=C().length-1}save();draw()})}
+const cX=i=>ask('کلاس حذف شود؟ زبان‌آموزان حذف نمی‌شوند.',()=>{C().splice(i,1);CI=-1;save();draw()},'حذف');
+const cR=(i,code)=>ask('این زبان‌آموز از کلاس خارج شود؟',()=>{C()[i].students=C()[i].students.filter(x=>x!=code);save();draw()},'حذف');
+function cM(i){const fr=A().filter(s=>clsOf(s.code)<0);if(!fr.length)return toast('زبان‌آموزِ بدون کلاس وجود ندارد (هر نفر فقط در یک کلاس است)');modal('افزودن به کلاس',fr.map(s=>`<label class="f" style="display:block;color:var(--t);font-size:16px"><input type="checkbox" style="width:auto" value="${E(s.code)}"> ${E(s.first)} ${E(s.last)} <span class="m">${E(s.code)}</span></label>`).join(''),m=>{[...m.querySelectorAll('input:checked')].forEach(e=>{if(clsOf(e.value)<0)C()[i].students.push(e.value)});save();draw()},'افزودن')}
+// ---- settings, header parsing, merge ----
+const DEF_T=['Asal','Asha'],DEF_O=['روخوانی تکرار گرفتند','معنی تکرار گرفتند','روخوانی با ارفاق پذیرفته شد','معنی با ارفاق پذیرفته شد','تمرینات انجام نداده بودند','تمرینات ناقص انجام شده بود'];
+const SS=()=>D.settings&&typeof D.settings=='object'?D.settings:(D.settings={});
+const uniq=a=>{const o=[];(Array.isArray(a)?a:[]).forEach(x=>{x=String(x).trim();if(x&&!o.includes(x))o.push(x)});return o};
+const TCH=()=>SS().teachers?uniq(SS().teachers):DEF_T.slice(),OPT=()=>(SS().options?uniq(SS().options):DEF_O.slice()).slice(0,8);
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const hasStatus=t=>(t||'').split(/\r?\n/).some(l=>{const b=bare(norm(l));return b=='وضعیت امروز بچه ها'||b=='وضعیت بچه ها'});
+const RES=/^(وضعیت|غایب|غیبت|تاخیر|کلاس|درس|تکلیف|یادداشت|با سلام|سلام|student|workbook)/;
+function parseTeacher(t){let n=0;for(const line of t.split(/\r?\n/)){const l=line.trim();if(!l)continue;if(++n>3)break;const k=norm(l);if(k.startsWith('معلم')){const m=/^\S+\s*[:：]\s*(.+)$/.exec(l);if(m)return m[1].trim();continue}if(RES.test(k))continue;const c=/^([^\s:：][^:：]{0,30}?)\s*[:：]$/.exec(l);if(c)return c[1].trim()}return''}
+function parseClass(t){for(const line of t.split(/\r?\n/)){const l=line.trim();if(!norm(l).startsWith('کلاس'))continue;const m=/^\S+\s*[:：]\s*(.+)$/.exec(l);if(m)return m[1].trim()}return''}
+const matchCls=n=>{const k=norm(n);if(!k)return'';const c=C().find(x=>norm(x.name)==k);return c?c.name:n.trim()};
+function inferCls(t){const n=norm(t);let best='',bc=0,tie=false;C().forEach(c=>{let k=0;c.students.forEach(code=>{const s=A().find(x=>x.code==code);if(!s)return;const f=norm(s.first);if(f&&tokRe(f).test(n))k++});if(k>bc){bc=k;best=c.name;tie=false}else if(k==bc&&k>0)tie=true});return tie?'':best}
+function findDup(date,cls,tch,ex){if(!norm(cls))return-1;const d=pd(date);return R().findIndex((r,i)=>{if(i==ex||norm(r.class||'')!=norm(cls)||norm(r.teacher||'')!=norm(tch||''))return false;const rd=pd(r.date);return d!=null&&rd!=null?d==rd:norm(r.date)==norm(date)})}
+const rk=x=>x.id?'id:'+x.id:'t:'+norm(x.date)+'|'+norm(x.class)+'|'+norm(x.teacher)+'|'+norm(x.text);
+function mergeIn(r){const res={s:0,c:0,m:0,r:0,dr:0,n:0},map={},fk=s=>norm(s.first)+'|'+norm(s.last),ok=x=>x&&typeof x=='object';
+(r.students||[]).filter(ok).forEach(s=>{const code=String(s.code||'');let f=null;const l=A().find(x=>fk(x)==fk(s));if(l)f=l.code;if(!f){const b=A().find(x=>x.code==code);if(b&&fk(b)==fk(s))f=code}if(!f){const cp={...s};let n2=code;if(!code||A().some(x=>norm(x.code)==norm(code)))n2=nc('S',A());cp.code=n2;A().push(cp);f=n2;res.s++}map[code]=f});
+(r.classes||[]).filter(ok).forEach(c=>{let ci=C().findIndex(x=>norm(x.name)==norm(c.name));if(ci<0){const cp={...c,students:[]};if(!cp.code||C().some(x=>norm(x.code)==norm(cp.code)))cp.code=nc('C',C());C().push(cp);ci=C().length-1;res.c++}(Array.isArray(c.students)?c.students:[]).forEach(code=>{const lc=map[String(code)];if(lc&&clsOf(lc)<0){C()[ci].students.push(lc);res.m++}})});
+const keys=new Set(R().map(rk));(r.reports||[]).filter(ok).forEach(x=>{if(keys.has(rk(x)))res.dr++;else{keys.add(rk(x));R().push({...x});res.r++}});
+const nn=r.notes&&typeof r.notes=='object'?r.notes:{};Object.keys(nn).forEach(k=>{let key=k;const u=k.indexOf('_');if(k.startsWith('studentNote')&&u>0){const l=map[k.slice(u+1)];if(l)key=k.slice(0,u+1)+l}if(!(key in D.notes)&&String(nn[k]).trim()){D.notes[key]=nn[k];res.n++}});
+const sj=r.settings&&typeof r.settings=='object'?r.settings:null;if(sj){const t=TCH();uniq(sj.teachers).forEach(x=>{if(!t.includes(x))t.push(x)});if(sj.teachers||SS().teachers)SS().teachers=t;if(!SS().options&&Array.isArray(sj.options))SS().options=uniq(sj.options).slice(0,8)}
+fix();save();return res}
+const mergeMsg=x=>`زبان‌آموز جدید: ${x.s}<br>کلاس جدید: ${x.c}<br>عضو جدید در کلاس‌ها: ${x.m}<br>گزارش جدید: ${x.r}<br>گزارش تکراری (نادیده گرفته شد): ${x.dr}<br>یادداشت جدید: ${x.n}`;
+const dn=code=>{const i=A().findIndex(x=>x.code==code);if(i<0)return code;const s=A()[i];return clashN(i,norm(s.first))?s.first.trim()+' '+s.last.trim():s.first.trim()};
+const memOf=cn=>{const c=C().find(x=>x.name==cn);return c?c.students.filter(code=>A().some(s=>s.code==code)):[]};
+const one=s=>String(s||'').replace(/\s*[\r\n]+\s*/g,' ').trim();
+function formText(F,tch,date,cls,mem){const ab=new Set(F.absent),lt=new Set(F.late.filter(c=>!ab.has(c)));let s='';if(tch.trim())s+=tch.trim()+':\n';s+='با سلام\n\n'+date.trim()+'\n';if(cls.trim())s+='کلاس : '+cls.trim()+'\n';s+='\n';
+const bk=one(F.book),wb=one(F.workbook),ot=one(F.other);if(bk||wb||ot){s+='درس امروز\n';if(bk)s+="Student's book : "+bk+'\n';if(wb)s+='Workbook : '+wb+'\n';if(ot)s+=ot+'\n';s+='\n'}
+const a=mem.filter(c=>ab.has(c)),l=mem.filter(c=>!ab.has(c)&&lt.has(c));if(a.length||l.length){if(a.length)s+='غایب : '+a.map(dn).join(' ، ')+'\n';if(l.length)s+='تأخیر : '+l.map(dn).join(' ، ')+'\n';s+='\n'}
+const hw=(F.homework||'').trim();if(hw)s+='تکلیف جلسه بعد\n'+hw+'\n\n';s+='وضعیت امروز بچه‌ها\n\n';
+const G=new Map();mem.forEach(c=>{const m=F.marks[c];if(ab.has(c)||!m)return;const L=[...(m.opts||[])],o=one(m.other);if(o)L.push(o);if(!L.length)return;const k=L.join('\n');if(!G.has(k))G.set(k,{L,c:[]});G.get(k).c.push(c)});
+G.forEach(g=>{s+=g.c.map(dn).join(' ، ')+'\n'+g.L.join('\n')+'\n\n'});const ge=(F.general||'').trim();if(ge)s+='یادداشت کلی\n'+ge+'\n';return s.replace(/\s+$/,'')+'\n'}
+const emptyF=()=>({book:'',workbook:'',other:'',homework:'',general:'',absent:[],late:[],marks:{}});
+function fNorm(F){F.late=F.late.filter(c=>!F.absent.includes(c));F.absent.forEach(c=>delete F.marks[c]);Object.keys(F.marks).forEach(c=>{const m=F.marks[c];if(!(m.opts||[]).length&&!String(m.other||'').trim())delete F.marks[c]});return F}
+// ---- daily reports ----
+const dayOf=r=>{const d=pd(r.date);if(d!=null)return[d,0];if(r.createdAt){const n=new Date(r.createdAt);return[ep(n.getFullYear(),n.getMonth()+1,n.getDate()),1]}return[null,2]};
+function vR(){const ix=R().map((r,i)=>i).sort((a,b)=>(dayOf(R()[b])[0]??-1e12)-(dayOf(R()[a])[0]??-1e12));
+return`<div class="tb"><button class="p" onclick="fNew()">📝 ساخت گزارش با فرم</button><button onclick="rPaste()">📋 ورود از متن (چسباندن)</button>${pickBtn('📥 ورود فایل TXT','.txt,text/plain','rT')}<button onclick="rF(-1)">✍️ نوشتن متنی</button></div><div class="m">گزارش‌ها: ${R().length} • تاریخ هر گزارش (شمسی یا میلادی) مبنای گزارش‌های دوره‌ای است.</div>`+ix.map(i=>{const r=R()[i];return`<div class="card r" onclick="rV(${i})" style="cursor:pointer"><div>${E(r.date)}${r.class?' — '+E(r.class):''}${r.teacher?' — '+E(r.teacher):''}<div class="m">${E((r.text||'').slice(0,60))}</div></div><span>‹</span></div>`}).join('')}
+function rV(i){const r=R()[i],m=modal(E(r.date)+(r.class?' — '+E(r.class):'')+(r.teacher?' — '+E(r.teacher):''),`<pre>${E(r.text)}</pre>`);m.querySelector('.bt').insertAdjacentHTML('afterbegin','<button id="e1">ویرایش</button><button id="e3">📨 ارسال</button><button id="e4">📤 TXT</button><button class="d" id="e2">حذف</button>');
+m.querySelector('#e1').onclick=()=>{m.remove();rEdit(i)};m.querySelector('#e3').onclick=()=>shareText(r.text);m.querySelector('#e4').onclick=async()=>{const fn='report-'+String(r.date).replace(/[\/\\]/g,'-')+'.txt';if(await saveFile(fn,'﻿'+r.text,'text/plain'))toast('فایل گزارش آماده شد')};
+m.querySelector('#e2').onclick=()=>{m.remove();ask('این گزارش حذف شود؟',()=>{R().splice(i,1);save();draw()},'حذف')}}
+async function shareText(t){if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name=='AbortError')return}}try{await navigator.clipboard.writeText(t);toast('متن گزارش کپی شد')}catch(e){modal('گزارش (کپی کنید)',`<textarea rows="12" readonly onfocus="this.select()">${E(t)}</textarea>`)}}
+function rEdit(i){const r=R()[i];if(r.form)fOpen({idx:i,teacher:r.teacher||'',date:r.date,cls:r.class||'',F:JSON.parse(JSON.stringify(Object.assign(emptyF(),r.form)))});else rF(i)}
+function commit(idx,o){const r=idx>=0?R()[idx]:{};Object.assign(r,o);if(!r.id)r.id=uid();if(!r.createdAt)r.createdAt=Date.now();if(idx<0)R().push(r);save();return r}
+function rF(i,dr){const o=i>=0?R()[i]:dr||{},cs=['',...C().map(c=>c.name)];if(o.class&&!cs.includes(o.class))cs.push(o.class);
+modal('گزارش روزانه',f('date','تاریخ (مثلاً 1405/07/13)',o.date||todayJ())+f('teacher','نام معلم',o.teacher||'')+`<label>کلاس<select name="class">${cs.map(c=>`<option ${c==o.class?'selected':''} value="${E(c)}">${E(c||'(بدون کلاس)')}</option>`).join('')}</select></label>`+f('text','متن کامل گزارش',o.text,10),m=>{const v=g(m);if(!v.text)return toast('متن گزارش خالی است'),false;v.date=v.date||todayJ();v.text=m.querySelector('[name=text]').value;const fin=(ix)=>{commit(ix,{date:v.date,class:v.class,teacher:v.teacher,text:v.text});if(pd(v.date)==null)toast('تاریخ قابل تشخیص نبود؛ بر اساس زمان ثبت حساب می‌شود');draw()};const d=i<0?findDup(v.date,v.class,v.teacher,-1):-1;if(d>=0)ask('برای همین تاریخ، کلاس و معلم قبلاً گزارشی ثبت شده است. جایگزین شود؟',()=>fin(d),'جایگزین');else fin(i)})}
+function rText(t){const d=findDate(t),c=matchCls(parseClass(t))||inferCls(t);rF(-1,{date:d||todayJ(),class:c,teacher:parseTeacher(t),text:t.replace(/^﻿/,'')})}
+async function rT(file){if(!file)return;const b=await file.arrayBuffer();let t;try{t=new TextDecoder('utf-8',{fatal:true}).decode(b)}catch(e){t=new TextDecoder('windows-1256').decode(b)}rText(t)}
+const rPaste=()=>modal('ورود گزارش از متن',`<textarea name="t" rows="12" placeholder="متن گزارش را اینجا بچسبانید"></textarea>`,m=>{const t=m.querySelector('[name=t]').value;if(!t.trim())return toast('متنی وارد نشده است'),false;setTimeout(()=>rText(t),0)},'ادامه');
+// ---- tick-box form ----
+function fNew(){fOpen({idx:-1,teacher:SS().lastTeacher||'',date:todayJ(),cls:'',F:emptyF()})}
+function fOpen(o){FS=o;V='f';draw()}
+function fCol(){const o=FS,F=emptyF(),mem=memOf(o.cls),v=id=>{const e=document.getElementById(id);return e?e.value:''};o.teacher=v('fT');o.date=v('fD');o.cls=v('fC');F.book=v('fB');F.workbook=v('fW');F.other=v('fO');F.homework=v('fH');F.general=v('fG');
+mem.forEach((c,i)=>{const e=id=>document.getElementById(id);if(e('ab'+i).checked)F.absent.push(c);else if(e('lt'+i).checked)F.late.push(c);const m={opts:[],other:v('x'+i)};o.opts.forEach((t,j)=>{if(e('o'+i+'_'+j).checked)m.opts.push(t)});if(m.opts.length||m.other.trim())F.marks[c]=m});o.F=F;return F}
+function fCls(){fCol();draw()}
+function fRef(i){const a=document.getElementById('ab'+i).checked,d=document.getElementById('dt'+i),tg=document.getElementById('tg'+i);let n=0;FS.opts.forEach((t,j)=>{if(document.getElementById('o'+i+'_'+j).checked)n++});if(document.getElementById('x'+i).value.trim())n++;tg.style.display=a?'none':'';if(a)d.style.display='none';tg.textContent='وضعیت امروز'+(n?' ('+n+' مورد)':'')+(d.style.display=='none'?' ▾':' ▴')}
+function fCk(i,w){const a=document.getElementById('ab'+i),l=document.getElementById('lt'+i);if(w=='a'&&a.checked)l.checked=false;if(w=='l'&&l.checked)a.checked=false;fRef(i)}
+function fTg(i){const d=document.getElementById('dt'+i);d.style.display=d.style.display=='none'?'':'none';fRef(i)}
+function vF(){const o=FS;if(!o){V='r';return vR()}const F=o.F,mem=memOf(o.cls);o.opts=OPT();Object.values(F.marks).forEach(m=>(m.opts||[]).forEach(t=>{if(!o.opts.includes(t))o.opts.push(t)}));
+if(!C().length)return'<div class="w">ابتدا از بخش «کلاس‌ها» یک کلاس بسازید و زبان‌آموزان را به آن اضافه کنید.</div><button onclick="V=\'r\';FS=null;draw()">← بازگشت</button>';
+const ts=['',...TCH()];if(o.teacher&&!ts.includes(o.teacher))ts.push(o.teacher);const cs=['',...C().map(c=>c.name)];if(o.cls&&!cs.includes(o.cls))cs.push(o.cls);
+const inp=(id,l,v)=>`<label>${l}<input id="${id}" value="${E(v)}"></label>`,ta=(id,l,v,n)=>`<label>${l}<textarea id="${id}" rows="${n}">${E(v)}</textarea></label>`;
+const cards=mem.map((c,i)=>{const ab=F.absent.includes(c),lt=!ab&&F.late.includes(c),m=F.marks[c]||{opts:[],other:''},open=!ab&&((m.opts||[]).length||String(m.other||'').trim());
+return`<div class="card"><div class="r"><b>${E(dn(c))}</b><span><label class="f" style="color:var(--t)"><input type="checkbox" id="ab${i}" style="width:auto" ${ab?'checked':''} onchange="fCk(${i},'a')"> غایب</label> &nbsp; <label class="f" style="color:var(--t)"><input type="checkbox" id="lt${i}" style="width:auto" ${lt?'checked':''} onchange="fCk(${i},'l')"> تأخیر</label></span></div>
+<div id="tg${i}" style="color:var(--a);cursor:pointer;padding:6px 0" onclick="fTg(${i})"></div>
+<div id="dt${i}" style="${open?'':'display:none'}">${o.opts.map((t,j)=>`<label class="f" style="display:block;color:var(--t);margin:2px 0"><input type="checkbox" id="o${i}_${j}" style="width:auto" ${(m.opts||[]).includes(t)?'checked':''} onchange="fRef(${i})"> ${E(t)}</label>`).join('')}<input id="x${i}" placeholder="توضیح دیگر" value="${E(m.other||'')}" oninput="fRef(${i})"></div></div>`}).join('');
+return`<div class="tb"><button onclick="V='r';FS=null;draw()">← بازگشت</button></div><h3>${o.idx>=0?'ویرایش گزارش':'گزارش روزانه جدید'}</h3>
+<label>معلم<select id="fT">${ts.map(t=>`<option value="${E(t)}" ${t==o.teacher?'selected':''}>${E(t||'(بدون نام)')}</option>`).join('')}</select></label>${inp('fD','تاریخ (مثلاً 1405/07/13)',o.date)}
+<label>کلاس<select id="fC" onchange="fCls()">${cs.map(t=>`<option value="${E(t)}" ${t==o.cls?'selected':''}>${E(t||'(انتخاب کلاس)')}</option>`).join('')}</select></label>
+<b>درس امروز</b>${inp('fB',"Student's book (مثلاً صفحه 20، 21)",F.book)}${inp('fW','Workbook (مثلاً صفحه 15)',F.workbook)}${inp('fO','سایر (مثلاً صفحات 21-24 کتاب داستان)',F.other)}
+<b>حضور و غیاب و وضعیت بچه‌ها</b>${o.cls?(mem.length?cards:'<div class="m">این کلاس عضو ندارد.</div>'):'<div class="m">کلاس را انتخاب کنید تا اسامی بیاید.</div>'}
+<b>تکلیف جلسه بعد</b>${ta('fH','',F.homework,3)}<b>یادداشت کلی</b>${ta('fG','',F.general,3)}
+<div class="tb"><button class="p" onclick="fSave(0)">💾 ذخیره گزارش</button><button onclick="fSave(1)">📨 ذخیره و ارسال</button><button onclick="fPrev()">👁 پیش‌نمایش</button></div>`}
+function fText(){const F=fNorm(fCol()),o=FS;return formText(F,o.teacher,(o.date||'').trim()||todayJ(),o.cls,memOf(o.cls))}
+const fPrev=()=>modal('پیش‌نمایش',`<pre>${E(fText())}</pre>`);
+function fSave(send){const F=fNorm(fCol()),o=FS;if(!o.cls)return toast('کلاس را انتخاب کنید');const date=(o.date||'').trim()||todayJ(),text=formText(F,o.teacher,date,o.cls,memOf(o.cls)),obj={date,class:o.cls,teacher:o.teacher,text,form:F};
+const done=()=>{if(o.teacher)SS().lastTeacher=o.teacher;save();FS=null;V='r';draw();if(send)shareText(text)};
+const d=o.idx<0?findDup(date,o.cls,o.teacher,-1):-1;if(d>=0)ask('برای همین تاریخ، کلاس و معلم قبلاً گزارشی ثبت شده است. جایگزین شود؟',()=>{commit(d,obj);done()},'جایگزین');else{commit(o.idx,obj);done()}}
+// ---- weekly / monthly ----
+function per(days){const t=today(),o={ix:[],fb:0,un:0};R().forEach((r,i)=>{const[d,k]=dayOf(r);if(k==1)o.fb++;if(k==2){o.un++;o.ix.push(i);return}if(d>t-days)o.ix.push(i)});o.ix.sort((a,b)=>(dayOf(R()[a])[0]??-1e12)-(dayOf(R()[b])[0]??-1e12));return o}
+const hd=(o,d)=>`<div class="m">بازه: ${d} روز اخیر • تعداد گزارش: ${o.ix.length}</div>`+(o.fb?`<div class="w">⚠️ ${o.fb} گزارش تاریخ قابل تشخیص ندارند و بر اساس زمان ثبت حساب شده‌اند.</div>`:'')+(o.un?`<div class="w">⚠️ ${o.un} گزارش هیچ تاریخی ندارند و در همه بازه‌ها می‌آیند.</div>`:'');
+const noteBox=k=>`<label>توضیحات دستی<textarea rows="3" oninput="D.notes['${k}']=this.value;save()">${E(D.notes[k]||'')}</textarea></label>`;
+const STOP=new Set(['و','در','با','را','به','از','که','هم','این','آن']),tk=n=>new Set(n.split(/[^\p{L}\p{N}]+/u).filter(w=>w&&!STOP.has(w)));
+const IMPL='حاضر — تکالیفش خوب انجام شده',bare=n=>n.replace(/[^\p{L}\p{N}\s]+/gu,' ').replace(/\s+/g,' ').trim();
+const tokRe=n=>new RegExp('(^|[^\\p{L}\\p{N}])'+n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'([^\\p{L}\\p{N}]|$)','u');
+function sim(a,na,b,nb){if(!a.size||!b.size)return na==nb;let i=0;a.forEach(w=>{if(b.has(w))i++});const u=a.size+b.size-i;return u>0&&i*10>=u*6}
+function summ(es,total,key){const kt=tk(key);let ab=0,pr=0,lt=0;const gs=[],im=[],ad=[],ld=[];es.forEach((e,i)=>{if(e.late){lt++;ld.push(e.date)}if(e.implied){im.push(e.date);return}const L=e.text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l&&norm(l)!=key);if(e.absent){ab++;ad.push(e.date)}else if(L.length||e.late)pr++;L.forEach(l=>{const n=norm(l),t=tk(n);kt.forEach(w=>t.delete(w));let g=gs.find(x=>sim(x.t,x.n,t,n));if(!g){g={rep:l,n,t,c:0,last:-1,d:[]};gs.push(g)}if(g.last!=i){g.last=i;g.c++;g.d.push(e.date)}})});
+gs.sort((a,b)=>b.c-a.c);const un=Math.max(0,total-pr-ab-im.length);
+return'📊 خلاصه این بازه\nگزارش‌های بازه: '+total+'\nحاضر (با گزارش): '+pr+(ab?'\n❌ غایب: '+ab+' بار ('+ad.join('، ')+')':'')+(lt?'\n⏰ تأخیر: '+lt+' بار ('+ld.join('، ')+')':'')+(im.length?'\n✅ نامش در گزارش نیامده (حاضر، تکالیفش خوب انجام شده): '+im.length+' بار ('+im.join('، ')+')':'')+(un?'\nنامشخص (گزارش بدون کلاس یا نام مشابه): '+un:'')+(gs.length?'\n\n🔁 موارد گزارش‌شده (موارد مشابه با هم شمرده شده‌اند):\n'+gs.map(g=>'• '+g.c+' بار — '+g.rep+(g.c>1?' ('+g.d.join('، ')+')':'')).join('\n'):'')}
+const clashN=(si,nf)=>A().filter((x,k)=>{if(k==si)return 0;const n=norm(x.first);return n==nf||n.startsWith(nf+' ')}).length;
+const keyOf=si=>{const s=A()[si],nf=norm(s.first);return clashN(si,nf)?norm(s.first+' '+s.last):nf};
+const heads=()=>{const h=new Set();A().forEach(x=>{h.add(norm(x.first));h.add(norm(x.first+' '+x.last))});h.delete('');return h};
+const hNames=n=>n.split(/[,،;؛]|\sو\s/).map(bare).filter(Boolean);
+const isHeadFor=(n,key)=>{if(!n||!key)return false;const ns=hNames(n);if(!ns.length||ns.length>8)return false;const kw=key.split(' ').length;let m=false;for(const p of ns){const w=p.split(' ').length;if(w>3)return false;if(p==key||(p.startsWith(key+' ')&&w-kw<=2))m=true}return m};
+const isNameLine=(n,H)=>{const ns=hNames(n);return ns.length>0&&ns.every(p=>H.has(p)||[...H].some(h=>p.startsWith(h+' ')))};
+const isAbs=n=>/^(غایب|غیبت)\S*\s*[:：]/.test(n),isLt=n=>/^(تاخیر|دیرکرد|دیر)\S*\s*[:：]/.test(n);
+function hit(txt,key,H){H=H||heads();const L=(txt||'').split(/\r?\n/);if(!key)return{a:0,b:'',body:''};const re=tokRe(key);
+const abm=n=>{const l=n.slice(n.indexOf(':')+1);return l.split(/[,،;؛]|\sو\s/).some(t=>{t=t.trim();return t&&(t==key||t.startsWith(key+' '))})};
+let b='',bd='',on=0,a=0,lt=0,got=0,sk=0;
+for(const l of L){const n=norm(l);if(isAbs(n)){if(abm(n))a=1;on=0;continue}if(isLt(n)){if(abm(n))lt=1;on=0;continue}
+if(on){if(!n){if(!got&&!sk){sk=1;continue}on=0}else if(!isHeadFor(n,key)&&isNameLine(n,H)){on=0}else{b+=l+'\n';bd+=l+'\n';got++;continue}}
+if(n&&isHeadFor(n,key)){on=1;got=0;sk=0;b+=l+'\n'}}
+if(b)return{a,l:a?0:lt,b,body:bd};const f=L.filter(l=>!isAbs(norm(l))&&!isLt(norm(l))&&re.test(norm(l))).join('\n');return{a,l:a?0:lt,b:f,body:f}}
+const mentionsAny=(txt,cn,H)=>A().some((x,k)=>{if(!cn||clsOf(x.code)<0||C()[clsOf(x.code)].name!=cn)return 0;const key=keyOf(k);if(!key)return 0;const h=hit(txt,key,H);return h.a||h.l||h.b.trim()});
+const firstAppears=(txt,nf)=>{const re=tokRe(nf);return(txt||'').split(/\r?\n/).some(l=>re.test(norm(l)))};
+const pTitle=d=>d==7?'گزارش هفتگی':'گزارش ماهانه',hdT=(o,d)=>'بازه: '+d+' روز اخیر • تعداد گزارش: '+o.ix.length+(o.fb?'\n⚠️ '+o.fb+' گزارش تاریخ قابل تشخیص ندارند و بر اساس زمان ثبت حساب شده‌اند.':'')+(o.un?'\n⚠️ '+o.un+' گزارش هیچ تاریخی ندارند و در همه بازه‌ها می‌آیند.':'');
+// computes one student's report: summary text + list of {r,text}
+function stu(si,o,H){const s=A()[si],nf=norm(s.first),clash=clashN(si,nf),key=keyOf(si),ci=clsOf(s.code),cn=ci>=0?C()[ci].name:'',ncl=norm(cn),items=[],es=[];let total=0;
+if(key)o.ix.forEach(i=>{const r=R()[i],nrc=norm(r.class||'');if(ncl&&nrc&&nrc!=ncl)return;total++;const h=hit(r.text,key,H),ln=h.l?'با تأخیر آمد\n':'';
+if(h.a||h.b){es.push({date:r.date,absent:!!h.a,late:!!h.l,text:h.body});items.push({r,t:(h.a?'غایب بود\n':'')+ln+h.b})}
+else if(ncl&&nrc==ncl&&!(clash&&firstAppears(r.text,nf))&&(hasStatus(r.text)||mentionsAny(r.text,cn,H))){es.push({date:r.date,implied:1,late:!!h.l,text:''});items.push({r,t:ln+IMPL})}
+else if(h.l){es.push({date:r.date,late:1,text:''});items.push({r,t:ln})}});
+return{s,clash,cn,items,summary:items.length?summ(es,total,key):''}}
+function stuText(si,o,H,d){const x=stu(si,o,H),s=x.s;let t=pTitle(d)+' — '+s.first+' '+s.last+'\n'+(x.cn?'کلاس: '+x.cn+'\n':'')+hdT(o,d)+'\n';const n=(D.notes['studentNote'+d+'_'+s.code]||'').trim();if(n)t+='\nتوضیحات: '+n+'\n';t+='\n'+(x.summary?x.summary+'\n\n':'');
+return t+(x.items.length?x.items.map(i=>'[ '+i.r.date+' | '+(i.r.class||'')+' ]\n'+i.t+'\n').join('\n'):'موردی برای این زبان‌آموز در گزارش‌های این بازه پیدا نشد.')}
+const filt=(o,fc,ft)=>o.ix.filter(i=>{const r=R()[i];return(!fc||norm(r.class||'')==norm(fc))&&(!ft||norm(r.teacher||'')==norm(ft))});
+function attText(o,fc,ft){const ix=filt(o,fc,ft),H=heads();let s='';C().forEach(c=>{if(fc&&norm(c.name)!=norm(fc))return;const mem=memOf(c.name).map(code=>A().findIndex(x=>x.code==code)).filter(i=>i>=0);if(!mem.length)return;const mine=ix.filter(i=>norm(R()[i].class||'')==norm(c.name));s+='📋 حضور و غیاب — کلاس '+c.name+' ('+mine.length+' گزارش)\n';if(!mine.length){s+='گزارشی برای این کلاس در بازه نیست.\n\n';return}
+mem.forEach(si=>{const key=keyOf(si),ab=[],lt=[];if(key)mine.forEach(i=>{const h=hit(R()[i].text,key,H);if(h.a)ab.push(R()[i].date);else if(h.l)lt.push(R()[i].date)});const st=A()[si];s+='• '+st.first+' '+st.last+' — '+(!ab.length&&!lt.length?'بدون غیبت و تأخیر':[ab.length?'غایب: '+ab.length+' بار ('+ab.join('، ')+')':'',lt.length?'تأخیر: '+lt.length+' بار ('+lt.join('، ')+')':''].filter(Boolean).join(' • '))+'\n'});s+='\n'});return s}
+const fLine=()=>'کلاس: '+(FC||'همه')+' • معلم: '+(FT||'همه');
+function overallBody(o){const ix=filt(o,FC,FT);let t=attText(o,FC,FT);if(!ix.length)return t+'در این بازه (با این فیلتر) گزارش روزانه‌ای وجود ندارد.\n';return t+ix.map(i=>{const r=R()[i];return'• '+r.date+' | '+(r.class||'')+(r.teacher?' | '+r.teacher:'')+'\n'+r.text+'\n'}).join('\n')}
+function overallText(o,d){let t=pTitle(d)+' — گزارش کلی کلاس\n'+hdT(o,d)+'\n'+fLine()+'\n';const n=(D.notes['overallNote'+d]||'').trim();if(n)t+='\nتوضیحات: '+n+'\n';return t+'\n'+overallBody(o)}
+function allText(o,d){const H=heads();return pTitle(d)+' — همه زبان‌آموزان\n'+hdT(o,d)+'\n'+A().map((_,i)=>'\n==============================\n'+stuText(i,o,H,d)).join('\n')}
+const curText=(all)=>{const o=per(P);if(all)return[allText(o,P),'all-students'];if(SV==null||!A()[SV])return[overallText(o,P),'overall'];return[stuText(SV,o,heads(),P),(A()[SV].first+'-'+A()[SV].last).replace(/ /g,'_')]};
+const touch=()=>{try{return matchMedia('(pointer:coarse)').matches}catch(e){return false}};
+async function saveFile(name,text,mime){const blob=new Blob([text],{type:mime+';charset=utf-8'});
+if(touch()&&navigator.canShare){try{const f=new File([blob],name,{type:mime});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return true}}catch(e){if(e&&e.name=='AbortError')return true}}
+try{const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return true}catch(e){return false}}
+async function xSave(all){const[t,n]=curText(all),fn=(P==7?'weekly-':'monthly-')+n+'-'+new Date().toISOString().slice(0,10)+'.txt';if(await saveFile(fn,'\ufeff'+t,'text/plain'))toast('فایل گزارش آماده شد');else modal('گزارش (کپی کنید)',`<textarea rows="12" readonly onfocus="this.select()">${E(t)}</textarea>`)}
+async function xShare(all){const[t]=curText(all);if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e&&e.name=='AbortError')return}}try{await navigator.clipboard.writeText(t);toast('متن گزارش کپی شد')}catch(e){modal('گزارش (کپی کنید)',`<textarea rows="12" readonly onfocus="this.select()">${E(t)}</textarea>`)}}
+function vP(){const o=per(P),sel=SV,H=heads();let body;
+if(sel==null||!A()[sel]){const tl=[...new Set([...TCH(),...R().map(r=>r.teacher||'').filter(Boolean)])],fx=filt(o,FC,FT),at=attText(o,FC,FT);body=`<div class="card"><b>📌 گزارش کلی کلاس</b><label>کلاس<select onchange="FC=this.value;draw()"><option value="">همه</option>${C().map(c=>`<option ${c.name==FC?'selected':''} value="${E(c.name)}">${E(c.name)}</option>`).join('')}</select></label><label>معلم<select onchange="FT=this.value;draw()"><option value="">همه</option>${tl.map(t=>`<option ${t==FT?'selected':''} value="${E(t)}">${E(t)}</option>`).join('')}</select></label>${noteBox('overallNote'+P)}</div>`+(at?`<div class="card"><pre>${E(at)}</pre></div>`:'')+(fx.length?fx.map(i=>{const r=R()[i];return`<div class="card"><div class="m">${E(r.date)} | ${E(r.class)}${r.teacher?' | '+E(r.teacher):''}</div><pre>${E(r.text)}</pre></div>`}).join(''):'<div class="m">در این بازه (با این فیلتر) گزارشی نیست.</div>')}
+else{const x=stu(sel,o,H),s=x.s;body=(x.clash?'<div class="w">⚠️ نام کوچک مشترک یا مشابه است؛ فقط مواردی که نام و نام خانوادگی کامل در آن‌ها آمده نمایش داده می‌شود.</div>':'')+(x.cn?'':'<div class="m">ℹ️ این زبان‌آموز در هیچ کلاسی نیست؛ «حاضر بدون ذکر نام» فقط برای اعضای کلاس محاسبه می‌شود.</div>')+`<div class="card"><b>👤 ${E(s.first)} ${E(s.last)}</b>${noteBox('studentNote'+P+'_'+s.code)}</div>`+(x.items.length?`<div class="card"><pre>${E(x.summary)}</pre></div>`+x.items.map(i=>`<div class="card"><div class="m">${E(i.r.date)} | ${E(i.r.class)}</div><pre>${E(i.t)}</pre></div>`).join(''):'<div class="m">موردی برای این زبان‌آموز پیدا نشد.</div>')}
+return`<div class="tb"><button class="${P==7?'p':''}" onclick="P=7;draw()">هفتگی</button><button class="${P==30?'p':''}" onclick="P=30;draw()">ماهانه</button></div><label>گزارش برای<select onchange="SV=this.value===''?null:+this.value;draw()"><option value="">کل کلاس</option>${A().map((s,i)=>`<option value="${i}" ${SV===i?'selected':''}>${E(s.first)} ${E(s.last)}</option>`).join('')}</select></label>`+hd(o,P)+`<div class="tb"><button class="p" onclick="xSave(0)">📤 ذخیره فایل (TXT)</button><button onclick="xShare(0)">📨 ارسال / کپی</button><button onclick="xSave(1)">📚 فایل همه زبان‌آموزان</button></div>`+body+`<button onclick="amb()">🔎 بررسی نام‌های مشابه</button>`}
+function amb(){const G={};A().forEach(s=>{const n=norm(s.first);if(n)(G[n]=G[n]||[]).push(s)});const L=Object.values(G).filter(x=>x.length>1);modal('نام‌های مشابه',L.length?L.map(x=>`<div class="card"><b>${E(x[0].first)}</b> (${x.length} نفر)<br>`+x.map(s=>`• ${E(s.first)} ${E(s.last)} <span class="m">${E(s.code)}${clsOf(s.code)>=0?' • '+E(C()[clsOf(s.code)].name):''}</span>`).join('<br>')+'</div>').join('')+'<div class="m">گزارش‌ها فقط با نام و نام خانوادگی کامل در متن به این افراد نسبت داده می‌شوند.</div>':'نام کوچک تکراری پیدا نشد.')}
+// ---- Excel import ----
+const fxM=s=>{const d=dg(s);return/^\d+$/.test(d)?(d.length==10&&d[0]=='9'?'0'+d:d):s},fxN=s=>{const d=dg(s);return/^\d+$/.test(d)?(d.length>=8&&d.length<10?d.padStart(10,'0'):d):s};
+const fxD=s=>{if(/^\d{5}$/.test(s)&&+s>=20000&&+s<=70000){const d=new Date((+s-25569)*864e5);return d.getUTCFullYear()+'/'+p2(d.getUTCMonth()+1)+'/'+p2(d.getUTCDate())}return s},fxT=s=>{if(/^0\.\d+$/.test(s)){const m=Math.round(s*1440);return p2(Math.floor(m/60)%24)+':'+p2(m%60)}return s};
+const XURL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const loadJs=(u,cors)=>new Promise(res=>{const e=document.createElement('script');e.src=u;if(cors)e.crossOrigin='anonymous';e.onload=()=>res(!!window.XLSX);e.onerror=()=>res(false);document.head.appendChild(e)});
+const needX=async()=>window.XLSX?true:(await loadJs('xlsx.full.min.js',0))||(await loadJs(XURL,1));
+async function xl(kind,file){if(!file)return;if(!await needX())return toast('کتابخانه Excel بارگذاری نشد؛ یک بار با اینترنت برنامه را باز کنید تا ذخیره شود');
+try{const wb=XLSX.read(await file.arrayBuffer()),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''}).map(r=>r.map(c=>String(c).trim()));if(rows.length<2)return toast('فایل Excel ردیف داده ندارد');let ad=0,du=0,bd=0;
+for(const r of rows.slice(1)){if(r.every(c=>!c))continue;const x=i=>r[i]||'';
+if(kind=='s'){if(!x(1)&&!x(2)){bd++;continue}if((x(0)&&A().some(s=>norm(s.code)==norm(x(0))))||A().some(s=>norm(s.first)==norm(x(1))&&norm(s.last)==norm(x(2)))){du++;continue}A().push({code:x(0)||nc('S',A()),first:x(1),last:x(2),mobile:fxM(x(3)),national:fxN(x(4)),birth:fxD(x(5)),notes:x(6)});ad++}
+else{if(!x(1)){bd++;continue}if((x(0)&&C().some(c=>norm(c.code)==norm(x(0))))||C().some(c=>norm(c.name)==norm(x(1)))){du++;continue}C().push({code:x(0)||nc('C',C()),name:x(1),level:x(2),start:fxD(x(3)),end:fxD(x(4)),days:x(5),time:fxT(x(6)),notes:x(7),students:[]});ad++}}
+save();draw();modal('نتیجه ورود Excel',`ثبت شد: ${ad}<br>تکراری (نادیده گرفته شد): ${du}<br>ردیف بدون نام: ${bd}`)}catch(e){toast('فایل Excel قابل خواندن نیست')}}
+// ---- settings / backup ----
+function vG(){return`<div class="card"><b>👩‍🏫 معلم‌ها و توضیحات آماده</b><div class="tb"><button onclick="lEd('t')">معلم‌ها</button><button onclick="lEd('o')">توضیحات آماده وضعیت بچه‌ها (تا ۸ مورد)</button></div></div><div class="card"><b>💾 پشتیبان‌گیری و تبادل</b><div class="m">داده‌ها فقط روی همین دستگاه ذخیره می‌شوند. پاک کردن اطلاعات مرورگر یا حذف برنامه آن‌ها را از بین می‌برد؛ پس مرتب پشتیبان بگیرید. «ادغام» پشتیبان معلم‌ها را بدون حذف چیزی به داده‌های فعلی اضافه می‌کند. پشتیبان‌ها بین Android و آیفون قابل تبادل‌اند.</div><div class="tb"><button class="p" onclick="bk()">دانلود فایل پشتیبان</button><button onclick="bkCopy()">کپی متن پشتیبان</button>${pickBtn('♻️ بازیابی / ادغام از فایل','.json,application/json','rb')}<button onclick="rp()">بازیابی / ادغام با چسباندن متن</button></div></div><div class="card m">نسخه وب 1.8</div>`}
+function lEd(k){const t=k=='t',cur=t?TCH():OPT();modal(t?'معلم‌ها':'توضیحات آماده',`<div class="m">${t?'نام هر معلم در یک خط':'هر توضیح در یک خط (حداکثر ۸ مورد)'}</div><textarea name="t" rows="9">${E(cur.join('\n'))}</textarea>`,m=>{const L=uniq(m.querySelector('[name=t]').value.split(/\r?\n/));if(!t&&L.length>8)return toast('حداکثر ۸ مورد مجاز است'),false;SS()[t?'teachers':'options']=L;save();toast('ذخیره شد')})}
+const bj=()=>JSON.stringify({app:'class',version:6,exportedAt:Date.now(),students:D.students,classes:D.classes,reports:D.reports,notes:D.notes,settings:D.settings||{}},null,2);
+async function bk(){const j=bj(),n='class-backup-'+new Date().toISOString().slice(0,10)+'.json';let dl=null;if(typeof claude!=='undefined'){try{dl=await claude.use('downloads')}catch(e){}}if(dl){try{await dl.save({filename:n,data:j});return}catch(e){if(e&&e.code=='declined')return}}else if(await saveFile(n,j,'application/json')){toast('فایل پشتیبان آماده شد؛ آن را در Files یا جای امن ذخیره کنید');return}modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}
+async function bkCopy(){const j=bj();try{await navigator.clipboard.writeText(j);toast('متن پشتیبان کپی شد؛ در Notes یا پیام‌رسان بچسبانید')}catch(e){modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}}
+function restore(t){let r;try{r=JSON.parse(t)}catch(e){return toast('فایل پشتیبان معتبر نیست')}if(!r||!Array.isArray(r.students)||!Array.isArray(r.classes)||!Array.isArray(r.reports))return toast('فایل پشتیبان معتبر نیست');
+const m=modal('بازیابی اطلاعات','<b>ادغام:</b> اطلاعات فایل به داده‌های فعلی اضافه می‌شود و چیزی حذف یا عوض نمی‌شود (مناسب جمع‌بندی گزارش معلم‌ها).<br><br><b>جایگزینی:</b> اطلاعات فعلی کاملاً با فایل عوض می‌شود.',()=>{const x=mergeIn(r);draw();modal('نتیجه ادغام',mergeMsg(x))},'ادغام');
+m.querySelector('.bt').insertAdjacentHTML('afterbegin','<button class="d" id="rr">جایگزینی</button>');m.querySelector('#rr').onclick=()=>{m.remove();ask('اطلاعات فعلی حذف و با فایل عوض می‌شود. ادامه؟',()=>{const o=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x=='object');D={students:o(r.students),classes:o(r.classes).map(c=>({...c,students:Array.isArray(c.students)?c.students.map(String):[]})),reports:o(r.reports),notes:r.notes&&typeof r.notes=='object'?r.notes:{},settings:r.settings&&typeof r.settings=='object'?r.settings:(D.settings||{})};fix();save();toast('بازیابی انجام شد');draw()},'جایگزین')}}
+const rb=async f=>{if(f)restore(await f.text())},rp=()=>modal('بازیابی',`<textarea name="t" rows="10" placeholder="متن فایل پشتیبان را اینجا بچسبانید"></textarea>`,m=>{restore(m.querySelector('[name=t]').value)},'ادامه');
+draw();
+try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
+if('serviceWorker' in navigator&&location.protocol!='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+(function(){try{const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1),sa=navigator.standalone||matchMedia('(display-mode: standalone)').matches;let dis=null;try{dis=localStorage.getItem('class_hint')}catch(e){}
+if(ios&&!sa&&!dis){const d=document.createElement('div');d.className='w';d.style.cssText='margin:8px 12px;display:flex;gap:8px;justify-content:space-between;align-items:center';d.innerHTML='<span>📲 برای نصب: دکمه اشتراک‌گذاری (مربع با فلش) را بزنید و «Add to Home Screen» را انتخاب کنید. <b>اول نصب کنید، بعد اطلاعات را وارد کنید</b>؛ داده‌های Safari و برنامه نصب‌شده جدا هستند.</span>';const b=document.createElement('button');b.textContent='باشه';b.style.padding='4px 10px';b.onclick=()=>{try{localStorage.setItem('class_hint','1')}catch(e){}d.remove()};d.appendChild(b);document.querySelector('header').after(d)}}catch(e){}})();
+</script></body></html>
