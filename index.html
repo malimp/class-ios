@@ -43,15 +43,32 @@ pre{white-space:pre-wrap;margin:0;font:inherit}
 .kg .kr b,.kg .kh.kr{color:#d33}.kg .kx{background:rgba(221,51,51,.12)}.kg .kt{outline:2px solid var(--a)}
 #ts{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:10px;z-index:30;display:none;max-width:90%}
 .grp>summary{cursor:pointer;background:#d6def0;color:#1e325a;padding:11px 12px;border-radius:10px;margin:12px 0 6px;font-size:16px}@media(prefers-color-scheme:dark){.grp>summary{background:#2a3350;color:#dbe3f7}}
+/* certificate: only visible while printing, so the browser's "save as PDF" produces it */
+#cert{display:none;position:absolute;top:0;left:0;right:0;background:#fff;color:#1d2540;z-index:99}
+#cert .cw{width:270mm;height:188mm;margin:11mm auto;border:1.2mm solid #3f51b5;border-radius:4mm;box-sizing:border-box;padding:12mm 14mm;position:relative;display:flex;flex-direction:column;justify-content:space-between;text-align:center;overflow:hidden}
+#cert .lg{position:absolute;top:50%;left:50%;width:130mm;transform:translate(-50%,-50%);opacity:.06}
+#cert h1{margin:0;font-size:12mm;letter-spacing:1mm;color:#26305a}
+#cert .sub{font-size:5mm;color:#5a6785;letter-spacing:.6mm}
+#cert .line{font-size:6mm}
+#cert .name{font-size:15mm;font-weight:700;color:#3f51b5;border-bottom:.5mm solid #c9d2e6;display:inline-block;padding:0 10mm 3mm;margin:0 auto}
+#cert .foot{display:flex;justify-content:space-between;font-size:4.5mm;color:#5a6785}
+@media print{@page{size:A4 landscape;margin:0}body>*{display:none!important}#cert{display:block!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+
 </style></head><body>
 <header>🏫 کلاس</header><nav id="nv"></nav><main id="mn"></main><div id="ts"></div>
 <script src="xlsx.full.min.js" onerror="this.remove();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.crossOrigin='anonymous';document.head.appendChild(s)"></script>
 <script>
-const K='class_web_v1';let D={students:[],classes:[],reports:[],notes:{},settings:{},events:[]},V='s',Q='',P=7,PR=null,CI=-1,SV=null,FS=null,FC='',FT='';
-try{const x=JSON.parse(localStorage.getItem(K)||'null');if(x&&Array.isArray(x.students))D=Object.assign(D,x)}catch(e){}
+const K='class_web_v1';let D={students:[],classes:[],reports:[],notes:{},settings:{},events:[],grades:[]},V='t',Q='',P=7,PR=null,CI=-1,SV=null,FS=null,FC='',FT='',CORRUPT=false;
+try{const x=JSON.parse(localStorage.getItem(K)||'null');if(x&&Array.isArray(x.students))D=Object.assign(D,x)}catch(e){CORRUPT=true;try{const raw=localStorage.getItem(K);if(raw)localStorage.setItem(K+'_corrupt_'+Date.now(),raw)}catch(_){}}
 const A=()=>D.students,C=()=>D.classes,R=()=>D.reports,$=s=>document.querySelector(s);
 const E=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){toast('ذخیره‌سازی مرورگر در دسترس نیست')}};
+// ---- backup reminder: when was the last manual backup taken? (device-local, never inside a backup) ----
+const LEK='class_last_export';
+const lastExport=()=>{try{return +(localStorage.getItem(LEK)||0)}catch(e){return 0}};
+const markExport=()=>{try{localStorage.setItem(LEK,String(Date.now()))}catch(e){}};
+const bkDays=()=>{const t=lastExport();return t?Math.max(0,Math.floor((Date.now()-t)/864e5)):-1};
+function backupWarn(){let s='';if(CORRUPT)s+='<div class="w">⚠️ بخشی از داده‌ها خوانده نشد و در حافظهٔ مرورگر دست‌نخورده ماند. از «نسخه‌های خودکار» یا آخرین پشتیبان بازیابی کنید.</div>';const d=bkDays();if(A().length||C().length||R().length){if(d<0)s+='<div class="w">⚠️ هنوز از داده‌ها پشتیبان نگرفته‌اید؛ از «تنظیمات» یک فایل پشتیبان بگیرید.</div>';else if(d>=7)s+=`<div class="w">⚠️ آخرین پشتیبان ${d} روز پیش بوده است؛ یک نسخهٔ تازه بگیرید.</div>`}return s}
 function toast(s){const t=$('#ts');t.textContent=s;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',3500)}
 const norm=s=>String(s??'').replace(/\u0627\u0653/g,'\u0622').replace(/[يى]/g,'ی').replace(/[أإٱ]/g,'ا').replace(/[ةۀ]/g,'ه').replace(/ك/g,'ک').replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).replace(/[\u200c\u00a0]/g,' ').replace(/[\u200d\u200e\u200f\u0640\u0670\ufeff\u064b-\u0655]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
 const dg=s=>String(s??'').replace(/[۰-۹]/g,c=>c.charCodeAt(0)-1776).replace(/[٠-٩]/g,c=>c.charCodeAt(0)-1632).trim();
@@ -60,11 +77,11 @@ function toJ(gy,gm,gd){const g=[0,31,59,90,120,151,181,212,243,273,304,334],y2=g
 function toG(jy,jm,jd){jy+=1595;let d=-355668+365*jy+((jy/33|0)*8)+(((jy%33)+3)/4|0)+jd+(jm<7?(jm-1)*31:(jm-7)*30+186),gy=400*(d/146097|0);d%=146097;if(d>36524){gy+=100*(--d/36524|0);d%=36524;if(d>=365)d++}gy+=4*(d/1461|0);d%=1461;if(d>365){gy+=(d-1)/365|0;d=(d-1)%365}let gd=d+1,gm=0;const s=[0,31,(gy%4==0&&gy%100!=0)||gy%400==0?29:28,31,30,31,30,31,31,30,31,30,31];for(;gm<13&&gd>s[gm];gm++)gd-=s[gm];return[gy,gm,gd]}
 const ep=(y,m,d)=>Date.UTC(y,m-1,d)/864e5,today=()=>{const n=new Date();return ep(n.getFullYear(),n.getMonth()+1,n.getDate())};
 const p2=n=>String(n).padStart(2,'0'),todayJ=()=>{const n=new Date(),j=toJ(n.getFullYear(),n.getMonth()+1,n.getDate());return j[0]+'/'+p2(j[1])+'/'+p2(j[2])};
-const MD=/(?<![\d\/\-.])(\d{1,2})[\/\-.](\d{1,2})(?![\d\/\-.])/;
+const MD=/(^|[^\d\/.\-])(\d{1,2})[\/\-.](\d{1,2})(?![\d\/\-.])/;
 function inferMd(m,d){if(m<1||m>12||d<1||d>31)return null;const n=new Date(),y=toJ(n.getFullYear(),n.getMonth()+1,n.getDate())[0],g=toG(y,m,d);return[ep(g[0],g[1],g[2])>today()+60?y-1:y,m,d]}
-function pdMd(s){const k=MD.exec(norm(s));if(!k)return null;const j=inferMd(+k[1],+k[2]);if(!j)return null;const g=toG(...j);return ep(...g)}
+function pdMd(s){const k=MD.exec(norm(s));if(!k)return null;const j=inferMd(+k[2],+k[3]);if(!j)return null;const g=toG(...j);return ep(...g)}
 function pd(s){const m=/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/.exec(norm(s));if(!m)return pdMd(s);let[y,mo,d]=[+m[1],+m[2],+m[3]];if(mo<1||mo>12||d<1||d>31)return null;if(y>=1200&&y<=1700)[y,mo,d]=toG(y,mo,d);else if(y<1800||y>2300)return null;return ep(y,mo,d)}
-function findDate(t){let n=0;for(const l of t.split(/\r?\n/)){if(!l.trim())continue;const m=/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/.exec(norm(l));if(m&&pd(m[0])!=null)return m[1]+'/'+p2(m[2])+'/'+p2(m[3]);const k=MD.exec(norm(l));if(k){const j=inferMd(+k[1],+k[2]);if(j)return j[0]+'/'+p2(j[1])+'/'+p2(j[2])}if(++n>=6)break}return null}
+function findDate(t){let n=0;for(const l of t.split(/\r?\n/)){if(!l.trim())continue;const m=/(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})/.exec(norm(l));if(m&&pd(m[0])!=null)return m[1]+'/'+p2(m[2])+'/'+p2(m[3]);const k=MD.exec(norm(l));if(k){const j=inferMd(+k[2],+k[3]);if(j)return j[0]+'/'+p2(j[1])+'/'+p2(j[2])}if(++n>=6)break}return null}
 // ---- data rules ----
 function fix(){const k=new Set(A().map(s=>s.code)),u=new Set();C().forEach(c=>{c.students=(c.students||[]).filter(x=>k.has(x)&&!u.has(x)&&u.add(x))})}
 fix();
@@ -75,8 +92,22 @@ function modal(t,b,ok,lab='ذخیره'){const m=document.createElement('div');m.
 const ask=(msg,fn,lab='تأیید')=>modal('تأیید',E(msg),()=>{fn()},lab);
 const f=(n,l,v,ta)=>`<label>${l}${ta?`<textarea name="${n}" rows="${ta}">${E(v)}</textarea>`:`<input name="${n}" value="${E(v)}">`}</label>`;
 const g=m=>Object.fromEntries([...m.querySelectorAll('[name]')].map(e=>[e.name,e.value.trim()]));
-function draw(){const T=[['s','👨‍🎓 زبان‌آموزان'],['c','🏫 کلاس‌ها'],['r','📝 گزارش روزانه'],['p','📊 دوره‌ای'],['k','📆 تقویم'],...(MGR?[['m','💰 مالی']]:[]),['g','⚙️ تنظیمات']];$('#nv').innerHTML=T.map(([k,l])=>`<button class="${V==k?'on':''}" onclick="V='${k}';CI=-1;SV=null;FS=null;KD=null;KS=null;MS='h';MSV=null;draw()">${l}</button>`).join('');$('#mn').innerHTML=({s:vS,c:vC,r:vR,p:vP,g:vG,f:vF,k:vK,m:vM})[V]();if(V=='f'&&FS)memOf(FS.cls).forEach((c,i)=>fRef(i));scrollTo(0,0)}
+function draw(){const T=[['t','☀️ امروز'],['s','👨‍🎓 زبان‌آموزان'],['c','🏫 کلاس‌ها'],['r','📝 گزارش روزانه'],['p','📊 دوره‌ای'],['k','📆 تقویم'],['a','🎓 کارنامه'],...(MGR?[['m','💰 مالی']]:[]),['g','⚙️ تنظیمات']];$('#nv').innerHTML=T.map(([k,l])=>`<button class="${V==k?'on':''}" onclick="V='${k}';CI=-1;SV=null;FS=null;KD=null;KS=null;MS='h';MSV=null;draw()">${l}</button>`).join('');$('#mn').innerHTML=(V=='f'?'':backupWarn())+({t:vT,s:vS,c:vC,r:vR,p:vP,g:vG,f:vF,k:vK,a:vA,m:vM})[V]();if(V=='f'&&FS)memOf(FS.cls).forEach((c,i)=>fRef(i));scrollTo(0,0)}
 const pickBtn=(cap,acc,fn)=>`<label class="f"><span class="p" style="display:inline-block;border-radius:10px;padding:9px 14px;background:var(--a);color:#fff">${cap}</span><input type="file" accept="${acc}" hidden onchange="${fn}(this.files[0]);this.value=''"></label>`;
+// ---- today: the manager's morning screen ----
+const hasRep=(cls,e)=>R().some(r=>norm(r.class||'')==norm(cls)&&pd(r.date)==e);
+/** Held sessions of the last `days` days (today excluded) that have no report for that class and date. */
+function missRows(days){const t=today(),from=t-days,out=[];C().forEach(c=>{if(Cal.parse(os(c,'start'))==null)return;const en=Cal.parse(os(c,'end'));const to=(en!=null&&en<t)?en:t-1;if(to<from)return;Cal.sessions(c,EVS(),from,to).forEach(x=>{const e=x[0];if(!hasRep(c.name,e))out.push({cls:c.name,e,n:x[1],d:Cal.fmt(e)})})});return out.sort((a,b)=>b.e-a.e)}
+function vT(){const t=today(),j=Cal.jal(t),d=Cal.day(C(),EVS(),t,'',false),it=d.items.filter(i=>i.kind!='event');
+ let s=`<div class="card"><b>☀️ امروز — ${DAYS[Cal.wd(t)]} ${j[2]} ${MONTHS[j[1]-1]} ${j[0]}</b>`;
+ if(d.holiday)s+=`<div style="color:#d33">🔴 تعطیل: ${E(d.holiday)}</div>`;
+ s+=(it.length?it.map(i=>`<div class="r" style="cursor:pointer" onclick="V='k';KU.open(${t})"><span>${i.time?E(i.time)+' — ':''}${E(i.cls)}</span><b style="font-size:13px">${i.kind=='cancelled'?'برگزار نمی‌شود':hasRep(i.cls,t)?'✅ گزارش ثبت شده':'⏳ بدون گزارش'}</b></div>`).join(''):'<div class="m">امروز جلسه‌ای نیست.</div>');
+ s+=`<div class="tb"><button onclick="V='k';KU.open(${t})">📆 تقویم امروز</button><button class="p" onclick="fNew()">📝 گزارش امروز</button></div></div>`;
+ const miss=missRows(7);
+ s+=`<div class="card"><b>📝 گزارش‌های جاافتاده — ۷ روز گذشته</b>`+(miss.length?miss.map(m=>`<div class="r" style="cursor:pointer" onclick="V='k';KU.open(${m.e})"><span>${E(m.d)} — ${E(m.cls)}</span><span class="m">‹</span></div>`).join(''):'<div class="m">همهٔ جلسه‌های این بازه گزارش دارند. 👌</div>')+'</div>';
+ if(MGR){const due=Fin.dueLines(FN,t),db=Fin.debtors(FN,''),tot=db.reduce((a,x)=>a+x.balance,0);
+  s+=`<div class="card"><b>💰 مالی امروز</b>`+(due.length?due.map(x=>`<div>${E(x)}</div>`).join(''):'<div class="m">قسط سررسیدی برای امروز نیست.</div>')+`<div style="margin-top:6px">مجموع بدهی: <b>${Fin.toman(tot)}</b> — ${db.length} نفر</div><div class="tb"><button onclick="V='m';MS='d';draw()">بدهکاران</button><button onclick="V='m';MS='h';draw()">مالی</button></div></div>`}
+ return s}
 // ---- students ----
 function vS(){const q=norm(Q),L=A().map((s,i)=>[s,i]).filter(([s])=>norm(s.first+' '+s.last+' '+s.code+' '+s.mobile).includes(q));
 return`<div class="tb"><button class="p" onclick="sF(-1)">➕ افزودن</button>${pickBtn('📥 ورود Excel','.xlsx','xl.bind(0,\'s\')')}<button onclick="xlExport('s')">📤 خروجی Excel</button></div><input placeholder="🔎 جستجو (نام، کد، موبایل)" value="${E(Q)}" oninput="Q=this.value;sS()"><div class="m">ستون‌های Excel: کد | نام | نام خانوادگی | موبایل | کد ملی | تاریخ تولد | توضیحات (ردیف اول عنوان)</div><div id="sl">${sL(L)}</div>`}
@@ -87,8 +118,40 @@ const sD=i=>ask('زبان‌آموز حذف شود؟ از کلاسش هم خار
 // ---- classes ----
 function vC(){if(CI>=0&&C()[CI])return cD(CI);return`<div class="tb"><button class="p" onclick="cF(-1)">➕ افزودن کلاس</button>${pickBtn('📥 ورود Excel','.xlsx','xl.bind(0,\'c\')')}<button onclick="xlExport('c')">📤 خروجی Excel</button></div><div class="m">ستون‌های Excel: کد | نام کلاس | سطح | شروع | پایان | روزها | ساعت | توضیحات</div>`+C().map((c,i)=>`<div class="card r" onclick="CI=${i};draw()" style="cursor:pointer"><div>${E(c.name)}<div class="m">${E(c.code)} • ${c.students.length} نفر</div></div><span>‹</span></div>`).join('')}
 function cD(i){const c=C()[i],L=[['level','سطح'],['start','شروع'],['end','پایان'],['notes','توضیحات']].filter(([k])=>c[k]).map(([k,l])=>`${l}: ${E(c[k])}`).concat(Cal.sched(c)||c.days||c.time?['روزها و ساعت: '+E(Cal.scheduleText(c))]:[]).join('<br>');
-return`<div class="tb"><button onclick="CI=-1;draw()">← بازگشت</button><button class="p" onclick="cM(${i})">➕ افزودن زبان‌آموز</button><button onclick="cF(${i})">✏️</button><button class="d" onclick="cX(${i})">🗑️</button></div><h3>${E(c.name)}</h3><div class="m">${L}</div><div class="m">اعضا: ${c.students.length}</div>`+c.students.map(code=>A().find(s=>s.code==code)).filter(Boolean).map(s=>`<div class="card r"><span>${E(s.first)} ${E(s.last)}</span><button onclick="cR(${i},'${E(s.code).replace(/'/g,'')}')">حذف از کلاس</button></div>`).join('')}
-// Jalali date as three drop-downs (day / month / year); stored as yyyy/MM/dd
+return`<div class="tb"><button onclick="CI=-1;draw()">← بازگشت</button><button class="p" onclick="cM(${i})">➕ افزودن زبان‌آموز</button><button onclick="cF(${i})">✏️</button><button class="d" onclick="cX(${i})">🗑️</button></div><h3>${E(c.name)}</h3><div class="m">${L}</div><div class="m">اعضا: ${c.students.length}${c.cap?' از '+c.cap:''}</div>`+c.students.map(code=>A().find(s=>s.code==code)).filter(Boolean).map(s=>`<div class="card r"><span>${E(s.first)} ${E(s.last)}</span><button onclick="cert('${E(s.code).replace(/'/g,'')}','${E(c.name).replace(/'/g,"\\'")}')">🎓 گواهی</button> <button onclick="cR(${i},'${E(s.code).replace(/'/g,'')}')">حذف از کلاس</button></div>`).join('')}
+// ---- skill report card (خواندن / نوشتن / شنیدن / صحبت) ----
+const SKILLS=[['r','خواندن'],['w','نوشتن'],['l','شنیدن'],['s','صحبت']];
+let GA=null,GC='';
+const gradeOf=code=>GRD().filter(g=>g.code==code).sort((a,b)=>(pd(b.date)??0)-(pd(a.date)??0));
+const gAvg=(l,k)=>{const v=l.map(x=>+x[k]).filter(n=>!isNaN(n)&&n>=0);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null};
+function vA(){if(GA){const s=A().find(x=>x.code==GA);if(!s){GA=null;return vA()}
+  const l=gradeOf(GA),ci=clsOf(GA),cn=ci>=0?C()[ci].name:'';
+  const avg=SKILLS.map(([k,t])=>{const a=gAvg(l,k);return a==null?'':`${t} ${a}`}).filter(Boolean).join(' • ');
+  return`<div class="tb"><button onclick="GA=null;draw()">← بازگشت</button><button class="p" onclick="gradeDlg('${E(s.code)}')">➕ ثبت نمره</button><button onclick="xGrade()">📤 متن کارنامه</button></div><h3>${E(s.first)} ${E(s.last)}</h3>${cn?`<div class="m">کلاس: ${E(cn)}</div>`:''}`+
+   (l.length?`<div class="card"><b>میانگین</b><div class="m">${avg||'—'}</div></div>`+l.map(g=>`<div class="card"><div class="r"><b>${E(g.date)}</b><span class="m">${SKILLS.map(([k,t])=>g[k]!=null&&+g[k]>=0?t+' '+g[k]:'').filter(Boolean).join(' • ')||'—'}</span></div>${g.note?`<div class="m">${E(g.note)}</div>`:''}<div class="tb"><button onclick="gradeDlg('${E(s.code)}','${E(os(g,'id'))}')">✏️ ویرایش</button><button class="d" onclick="gradeDel('${E(os(g,'id'))}')">🗑️ حذف</button></div></div>`).join(''):'<div class="m">هنوز نمره‌ای ثبت نشده است.</div>')}
+ const cs=C();
+ let h=`<label>کلاس<select onchange="GC=this.value;draw()"><option value="">— انتخاب کلاس —</option>${cs.map(c=>`<option ${c.name==GC?'selected':''} value="${E(c.name)}">${E(c.name)}</option>`).join('')}</select></label>`;
+ const c=cs.find(x=>x.name==GC);
+ const mem=c?c.students.map(code=>A().find(s=>s.code==code)).filter(Boolean):A().slice();
+ if(!mem.length)return h+'<div class="m">هنوز زبان‌آموزی ثبت نشده است.</div>';
+ return h+'<div class="m">میانگین نمره‌های هر زبان‌آموز (۰ تا ۱۰۰) — برای ثبت نمره روی نام بزنید.</div>'+
+  mem.map(s=>{const l=gradeOf(s.code);return`<div class="card r" style="cursor:pointer" onclick="GA='${E(s.code)}';draw()"><div>${E(s.first)} ${E(s.last)}<div class="m">${SKILLS.map(([k,t])=>{const a=gAvg(l,k);return a==null?'':t+' '+a}).filter(Boolean).join(' • ')||'بدون نمره'}</div></div><span>‹</span></div>`}).join('')}
+function gradeDlg(code,id){const s=A().find(x=>x.code==code);if(!s)return;const g0=id?GRD().find(x=>os(x,'id')==id):null;
+ modal((id?'ویرایش نمره — ':'ثبت نمره — ')+E(s.first)+' '+E(s.last),f('date','تاریخ (مثلاً 1405/08/17)',g0?g0.date:todayJ())+SKILLS.map(([k,t])=>f(k,t,g0&&g0[k]!=null&&+g0[k]>=0?String(g0[k]):'')).join('')+f('note','توضیح (اختیاری)',g0?g0.note:'',2),m=>{
+  const v=g(m);if(pd(v.date)==null)return toast('تاریخ معتبر نیست (مثلاً 1405/08/17)'),false;
+  const o={};for(const [k] of SKILLS){const raw=String(v[k]||'').trim();if(raw===''){o[k]=-1;continue}const n=Math.round(+dg(raw));if(isNaN(n)||n<0||n>100)return toast('نمره‌ها باید بین ۰ تا ۱۰۰ باشند'),false;o[k]=n}
+  if(SKILLS.every(([k])=>o[k]<0)&&!String(v.note||'').trim())return toast('حداقل یک نمره یا توضیح وارد کنید'),false;
+  const rec=id?GRD().find(x=>os(x,'id')==id):{id:uid(),code};
+  Object.assign(rec,o,{code,date:String(v.date).trim(),note:String(v.note||'').trim(),ts:Date.now()});
+  if(!id)GRD().push(rec);
+  save();draw();toast('ذخیره شد')})}
+const gradeDel=id=>ask('این نمره حذف شود؟',()=>{D.grades=GRD().filter(x=>os(x,'id')!=id);save();draw()},'حذف');
+function gradeText(){const s=A().find(x=>x.code==GA);if(!s)return'';const l=gradeOf(GA),ci=clsOf(GA);
+ let t='کارنامهٔ مهارتی — '+s.first+' '+s.last+'\n'+(ci>=0?'کلاس: '+C()[ci].name+'\n':'')+'\n';
+ t+='تاریخ | '+SKILLS.map(([,x])=>x).join(' | ')+'\n';
+ l.slice().reverse().forEach(g=>{t+=g.date+' | '+SKILLS.map(([k])=>g[k]!=null&&+g[k]>=0?g[k]:'—').join(' | ')+'\n';if(g.note)t+='  ('+g.note+')\n'});
+ t+='\nمیانگین: '+(SKILLS.map(([k,x])=>{const a=gAvg(l,k);return a==null?'':x+' '+a}).filter(Boolean).join(' • ')||'—')+'\n';return t}
+function xGrade(){if(!GA)return;const t=gradeText();if(t)shareRaw(t)}
 function dSel(n,val){const cy=Cal.jal(today())[0];let y0=0,m0=0,d0=0;const e=val&&String(val).trim()?Cal.parse(val):null;if(e!=null){const j=Cal.jal(e);y0=j[0];m0=j[1];d0=j[2]}const ys=[];for(let y=cy-2;y<=cy+3;y++)ys.push(y);if(y0&&!ys.includes(y0)){ys.push(y0);ys.sort((a,b)=>a-b)}
 const op=(v,t,c)=>`<option value="${v}"${c==v?' selected':''}>${t}</option>`;
 return`<div class="dsel" style="display:flex;gap:6px"><select name="${n}_d">${op(0,'روز',d0)}${Array.from({length:31},(_,k)=>op(k+1,k+1,d0)).join('')}</select><select name="${n}_m">${op(0,'ماه',m0)}${MONTHS.map((t,k)=>op(k+1,t,m0)).join('')}</select><select name="${n}_y">${op(0,'سال',y0)}${ys.map(y=>op(y,y,y0)).join('')}</select></div>`}
@@ -98,14 +161,24 @@ function dVal(m,n){const d=+m.querySelector(`[name=${n}_d]`).value,mo=+m.querySe
 function schOn(el,i){if(!el.checked)return;const m=el.closest('.ov'),s=m.querySelector('[name=s'+i+']'),e=m.querySelector('[name=e'+i+']');if(s.value||e.value)return;for(let k=0;k<7;k++){if(k==i)continue;const o=m.querySelector('[name=on'+k+']');if(o.checked){const s2=m.querySelector('[name=s'+k+']').value,e2=m.querySelector('[name=e'+k+']').value;if(s2||e2){s.value=s2;e.value=e2;break}}}}
 function cF(i){const o=i>=0?C()[i]:{},sc=Cal.sched(o)||Cal.legacySched(o);
 const rows=DAYS.map((dn,k)=>{const d=OBJ(own(sc,String(k)));return`<div class="r" style="margin:4px 0"><label class="f" style="flex:1 0 90px"><input type="checkbox" name="on${k}" ${d?'checked':''} onchange="schOn(this,${k})" style="width:auto"> ${dn}</label><label style="flex:1 0 110px;margin:0">شروع<input type="time" name="s${k}" value="${d&&sc[k].s||''}"></label><label style="flex:1 0 110px;margin:0">پایان<input type="time" name="e${k}" value="${d&&sc[k].e||''}"></label></div>`}).join('');
-modal(i>=0?'ویرایش کلاس':'افزودن کلاس',f('name','نام کلاس',o.name)+f('level','سطح/دوره',o.level)+`<label>تاریخ شروع کلاس (روز / ماه / سال)${dSel('st',o.start)}</label><label>تاریخ پایان کلاس (روز / ماه / سال)${dSel('en',o.end)}</label><div class="m" style="margin-top:8px">روزهای تشکیل کلاس و ساعت شروع و پایان هر روز</div>${rows}`+f('notes','توضیحات',o.notes,3),m=>{const v=g(m);if(!v.name)return toast('نام کلاس الزامی است'),false;
+modal(i>=0?'ویرایش کلاس':'افزودن کلاس',f('name','نام کلاس',o.name)+f('level','سطح/دوره',o.level)+f('cap','ظرفیت کلاس (اختیاری، ۰ = بدون محدودیت)',o.cap||'')+`<label>تاریخ شروع کلاس (روز / ماه / سال)${dSel('st',o.start)}</label><label>تاریخ پایان کلاس (روز / ماه / سال)${dSel('en',o.end)}</label><div class="m" style="margin-top:8px">روزهای تشکیل کلاس و ساعت شروع و پایان هر روز</div>${rows}`+f('notes','توضیحات',o.notes,3),m=>{const v=g(m);if(!v.name)return toast('نام کلاس الزامی است'),false;
 const sv=dVal(m,'st'),ev=dVal(m,'en');if(sv===null||ev===null)return toast('تاریخ را کامل و درست انتخاب کنید (روز، ماه و سال) یا هر سه را خالی بگذارید'),false;if(sv&&ev&&Cal.parse(ev)<Cal.parse(sv))return toast('تاریخ پایان قبل از تاریخ شروع است'),false;
 const sched={},dn=[];let common=null,same=true;for(let k=0;k<7;k++){if(!m.querySelector('[name=on'+k+']').checked)continue;const s1=m.querySelector('[name=s'+k+']').value,e1=m.querySelector('[name=e'+k+']').value;sched[k]={s:s1,e:e1};dn.push(DAYS[k]);const sp=Cal.span(s1,e1);if(common===null)common=sp;else if(common!==sp)same=false}
-const r={name:v.name,level:v.level,notes:m.querySelector('[name=notes]').value.trim(),start:sv,end:ev,sched,days:dn.join(' و '),time:same&&common!==null?common:'',ts:Date.now()};
+const r={name:v.name,level:v.level,cap:Math.max(0,parseInt(dg(v.cap),10)||0),notes:m.querySelector('[name=notes]').value.trim(),start:sv,end:ev,sched,days:dn.join(' و '),time:same&&common!==null?common:'',ts:Date.now()};
 if(i>=0)Object.assign(C()[i],r);else{C().push({code:nc('C',C()),...r,students:[]});CI=C().length-1}save();draw()})}
 const cX=i=>ask('کلاس حذف شود؟ زبان‌آموزان حذف نمی‌شوند.',()=>{C().splice(i,1);CI=-1;save();draw()},'حذف');
 const cR=(i,code)=>ask('این زبان‌آموز از کلاس خارج شود؟',()=>{C()[i].students=C()[i].students.filter(x=>x!=code);save();draw()},'حذف');
-function cM(i){const fr=A().filter(s=>clsOf(s.code)<0);if(!fr.length)return toast('زبان‌آموزِ بدون کلاس وجود ندارد (هر نفر فقط در یک کلاس است)');modal('افزودن به کلاس',fr.map(s=>`<label class="f" style="display:block;color:var(--t);font-size:16px"><input type="checkbox" style="width:auto" value="${E(s.code)}"> ${E(s.first)} ${E(s.last)} <span class="m">${E(s.code)}</span></label>`).join(''),m=>{[...m.querySelectorAll('input:checked')].forEach(e=>{if(clsOf(e.value)<0)C()[i].students.push(e.value)});save();draw()},'افزودن')}
+/** Certificate: shown only while printing, so the browser's print sheet can "save as PDF". */
+function cert(code,cls){const s=A().find(x=>x.code==code);if(!s)return toast('زبان‌آموز پیدا نشد');const c=C().find(x=>x.name==cls)||{};
+ const old=document.getElementById('cert');if(old)old.remove();
+ const el=document.createElement('div');el.id='cert';
+ el.innerHTML=`<div class="cw"><img class="lg" src="logo.jpg" alt=""><h1>گواهی پایان دوره</h1><div class="sub">Moradi English Class</div><div class="line">بدین وسیله گواهی می‌شود</div><div class="name">${E(s.first)} ${E(s.last)}</div><div class="line">دورهٔ ${E(c.name||'—')}${c.level?' — سطح '+E(c.level):''} را با موفقیت به پایان رسانده است.</div><div class="foot"><span>تاریخ: ${todayJ()}</span><span>امضای مدیر آموزشگاه</span></div></div>`;
+ document.body.appendChild(el);
+ const done=()=>{try{el.remove()}catch(e){}window.removeEventListener('afterprint',done)};
+ window.addEventListener('afterprint',done);
+ setTimeout(done,60000);
+ try{window.print()}catch(e){toast('چاپ در این مرورگر در دسترس نیست')}}
+function cM(i){const c=C()[i],cap=c.cap||0;if(cap&&c.students.length>=cap)return toast('ظرفیت این کلاس پر است ('+cap+' نفر)');const fr=A().filter(s=>clsOf(s.code)<0);if(!fr.length)return toast('زبان‌آموزِ بدون کلاس وجود ندارد (هر نفر فقط در یک کلاس است)');modal('افزودن به کلاس',fr.map(s=>`<label class="f" style="display:block;color:var(--t);font-size:16px"><input type="checkbox" style="width:auto" value="${E(s.code)}"> ${E(s.first)} ${E(s.last)} <span class="m">${E(s.code)}</span></label>`).join(''),m=>{let added=0;[...m.querySelectorAll('input:checked')].forEach(e=>{if(clsOf(e.value)>=0)return;if(cap&&c.students.length>=cap)return;c.students.push(e.value);added++});save();draw();if(cap&&c.students.length>=cap&&added)toast('ظرفیت کلاس پر شد؛ بقیه اضافه نشدند')},'افزودن')}
 // ---- settings, header parsing, merge ----
 const DEF_T=['Asal','Asha'],DEF_O=['روخوانی تکرار گرفتند','معنی تکرار گرفتند','روخوانی با ارفاق پذیرفته شد','معنی با ارفاق پذیرفته شد','تمرینات انجام نداده بودند','تمرینات ناقص انجام شده بود'];
 const SS=()=>D.settings&&typeof D.settings=='object'?D.settings:(D.settings={});
@@ -120,15 +193,17 @@ const matchCls=n=>{const k=norm(n);if(!k)return'';const c=C().find(x=>norm(x.nam
 function inferCls(t){const n=norm(t);let best='',bc=0,tie=false;C().forEach(c=>{let k=0;c.students.forEach(code=>{const s=A().find(x=>x.code==code);if(!s)return;const f=norm(s.first);if(f&&tokRe(f).test(n))k++});if(k>bc){bc=k;best=c.name;tie=false}else if(k==bc&&k>0)tie=true});return tie?'':best}
 function findDup(date,cls,tch,ex){if(!norm(cls))return-1;const d=pd(date);return R().findIndex((r,i)=>{if(i==ex||norm(r.class||'')!=norm(cls)||norm(r.teacher||'')!=norm(tch||''))return false;const rd=pd(r.date);return d!=null&&rd!=null?d==rd:norm(r.date)==norm(date)})}
 const rk=x=>x.id?'id:'+x.id:'t:'+norm(x.date)+'|'+norm(x.class)+'|'+norm(x.teacher)+'|'+norm(x.text);
-function mergeIn(r){const res={s:0,c:0,m:0,r:0,dr:0,n:0,e:0,eu:0},map={},fk=s=>norm(s.first)+'|'+norm(s.last),ok=x=>x&&typeof x=='object';
+function mergeIn(r){const res={s:0,c:0,m:0,r:0,dr:0,n:0,e:0,eu:0,g:0,gu:0},map={},fk=s=>norm(s.first)+'|'+norm(s.last),ok=x=>x&&typeof x=='object';
 (r.students||[]).filter(ok).forEach(s=>{const code=String(s.code||'');let f=null;const l=A().find(x=>fk(x)==fk(s));if(l)f=l.code;if(!f){const b=A().find(x=>x.code==code);if(b&&fk(b)==fk(s))f=code}if(!f){const cp={...s};let n2=code;if(!code||A().some(x=>norm(x.code)==norm(code)))n2=nc('S',A());cp.code=n2;A().push(cp);f=n2;res.s++}map[code]=f});
-(r.classes||[]).filter(ok).forEach(c=>{let ci=C().findIndex(x=>norm(x.name)==norm(c.name));if(ci<0){const cp={...c,students:[]};if(!cp.code||C().some(x=>norm(x.code)==norm(cp.code)))cp.code=nc('C',C());C().push(cp);ci=C().length-1;res.c++}const loc=C()[ci];if(ol(c,'ts',0)>ol(loc,'ts',0)){['level','start','end','days','time','notes','sched'].forEach(k=>{if(k in c)loc[k]=JSON.parse(JSON.stringify(c[k]))});loc.ts=ol(c,'ts',0)}(Array.isArray(c.students)?c.students:[]).forEach(code=>{const lc=map[String(code)];if(lc&&clsOf(lc)<0){C()[ci].students.push(lc);res.m++}})});
+(r.classes||[]).filter(ok).forEach(c=>{let ci=C().findIndex(x=>norm(x.name)==norm(c.name));if(ci<0){const cp={...c,students:[]};if(!cp.code||C().some(x=>norm(x.code)==norm(cp.code)))cp.code=nc('C',C());C().push(cp);ci=C().length-1;res.c++}const loc=C()[ci];if(ol(c,'ts',0)>ol(loc,'ts',0)){['level','start','end','days','time','notes','sched','cap'].forEach(k=>{if(k in c)loc[k]=JSON.parse(JSON.stringify(c[k]))});loc.ts=ol(c,'ts',0)}(Array.isArray(c.students)?c.students:[]).forEach(code=>{const lc=map[String(code)];if(lc&&clsOf(lc)<0){C()[ci].students.push(lc);res.m++}})});
 const keys=new Set(R().map(rk));(r.reports||[]).filter(ok).forEach(x=>{if(keys.has(rk(x)))res.dr++;else{keys.add(rk(x));R().push({...x});res.r++}});
 const nn=r.notes&&typeof r.notes=='object'?r.notes:{};Object.keys(nn).forEach(k=>{let key=k;const u=k.indexOf('_');if(k.startsWith('studentNote')&&u>0){const l=map[k.slice(u+1)];if(l)key=k.slice(0,u+1)+l}if(!(key in D.notes)&&String(nn[k]).trim()){D.notes[key]=nn[k];res.n++}});
 const sj=r.settings&&typeof r.settings=='object'?r.settings:null;if(sj){const t=TCH();uniq(sj.teachers).forEach(x=>{if(!t.includes(x))t.push(x)});if(sj.teachers||SS().teachers)SS().teachers=t;if(!SS().options&&Array.isArray(sj.options))SS().options=uniq(sj.options).slice(0,8)}
-ARR(r.events).forEach(e=>{if(!OBJ(e)||!os(e,'id'))return;const at=EVS().findIndex(o=>os(o,'id')==os(e,'id'));if(at<0){EVS().push(JSON.parse(JSON.stringify(e)));res.e++}else if(ol(e,'ts',0)>ol(EVS()[at],'ts',0)){EVS()[at]=JSON.parse(JSON.stringify(e));res.eu++}});Cal.touch();
+ARR(r.events).forEach(e=>{if(!OBJ(e)||!os(e,'id'))return;const at=EVS().findIndex(o=>os(o,'id')==os(e,'id'));if(at<0){EVS().push(JSON.parse(JSON.stringify(e)));res.e++}else if(ol(e,'ts',0)>ol(EVS()[at],'ts',0)){EVS()[at]=JSON.parse(JSON.stringify(e));res.eu++}});
+ARR(r.grades).forEach(x=>{if(!OBJ(x)||!os(x,'id'))return;const code=map[os(x,'code')]||os(x,'code');const g=JSON.parse(JSON.stringify(x));g.code=code;const at=GRD().findIndex(o=>os(o,'id')==os(g,'id'));if(at<0){GRD().push(g);res.g++}else if(ol(g,'ts',0)>ol(GRD()[at],'ts',0)){GRD()[at]=g;res.gu++}});
+Cal.touch();
 fix();save();return res}
-const mergeMsg=x=>`زبان‌آموز جدید: ${x.s}<br>کلاس جدید: ${x.c}<br>عضو جدید در کلاس‌ها: ${x.m}<br>گزارش جدید: ${x.r}<br>گزارش تکراری (نادیده گرفته شد): ${x.dr}<br>یادداشت جدید: ${x.n}<br>رویداد و برنامه درسی جدید: ${x.e}<br>رویداد و برنامه درسی به‌روز شده (نسخه جدیدتر): ${x.eu}`;
+const mergeMsg=x=>`زبان‌آموز جدید: ${x.s}<br>کلاس جدید: ${x.c}<br>عضو جدید در کلاس‌ها: ${x.m}<br>گزارش جدید: ${x.r}<br>گزارش تکراری (نادیده گرفته شد): ${x.dr}<br>یادداشت جدید: ${x.n}<br>رویداد و برنامه درسی جدید: ${x.e}<br>رویداد و برنامه درسی به‌روز شده (نسخه جدیدتر): ${x.eu}<br>نمرهٔ جدید: ${x.g}<br>نمرهٔ به‌روز شده: ${x.gu}`;
 const dn=code=>{const i=A().findIndex(x=>x.code==code);if(i<0)return code;const s=A()[i];return clashN(i,norm(s.first))?s.first.trim()+' '+s.last.trim():s.first.trim()};
 const memOf=cn=>{const c=C().find(x=>x.name==cn);return c?c.students.filter(code=>A().some(s=>s.code==code)):[]};
 const stripT=t=>{let n=0;const o=[];String(t??'').split(/\r?\n/).forEach(l=>{const q=l.trim(),k=norm(q);let d=false;if(q){n++;if(k.startsWith('معلم'))d=/^\S+\s*[:：]\s*(.+)$/.test(q);else if(n<=3&&!RES.test(k)&&/^([^\s:：][^:：]{0,30}?)\s*[:：]$/.test(q))d=true}if(!d)o.push(l)});return o.join('\n')};
@@ -378,7 +453,7 @@ const eventsOn=(events,e)=>ix(ARR(events)).get(e)||[];
 const holiday=(events,e)=>{let hidden=false;for(const o of eventsOn(events,e)){const t=os(o,'type');if(t==HOLIDAY){const title=os(o,'title').trim();return title==''?'تعطیل':title}if(t==HIDE)hidden=true}return hidden?null:builtinHoliday(e)};
 const lesson=(events,cls,date)=>{const id=lessonId(cls,date);for(const o of ARR(events))if(OBJ(o)&&os(o,'id')==id)return o;return null};
 const parseDays=s=>{const r=[false,false,false,false,false,false,false];let n=norm(s).replace(/ /g,'');const comp=['یکشنبه','دوشنبه','سهشنبه','چهارشنبه','پنجشنبه'];comp.forEach((c,i)=>{if(n.includes(c)){r[i+1]=true;n=n.split(c).join('')}});if(n.includes('شنبه'))r[0]=true;if(n.includes('جمعه'))r[6]=true;return r};
-const startMin=time=>{const n=norm(time);let m=/(\d{1,2})[:.٫](\d{2})/.exec(n);if(m){const h=+m[1],mi=+m[2];if(h<24&&mi<60)return h*60+mi}m=/(?<!\d)(\d{1,2})(?!\d)/.exec(n);if(m){const h=+m[1];if(h<24)return h*60}return NO_TIME};
+const startMin=time=>{const n=norm(time);let m=/(\d{1,2})[:.٫](\d{2})/.exec(n);if(m){const h=+m[1],mi=+m[2];if(h<24&&mi<60)return h*60+mi}m=/(^|[^\d])(\d{1,2})(?!\d)/.exec(n);if(m){const h=+m[2];if(h<24)return h*60}return NO_TIME};
 // per-day schedule: sched = {"0":{s:"16:00",e:"17:30"},...}, key = weekday (Saturday = 0)
 const sched=c=>{const x=c&&c.sched;return OBJ(x)&&Object.keys(x).length?x:null};
 const span=(s,e)=>{s=String(s??'').trim();e=String(e??'').trim();return s==''?e:(e==''?s:s+' تا '+e)};
@@ -417,6 +492,7 @@ for(const x of sessions(c,events,s,en)){const tm=timeAt(c,x[0]);b+='\nجلسه '
 return{note,EXAM,EVENT,REG,TS,TE,MAKEUP,OFF,HOLIDAY,HIDE,LESSON,ADD_TYPES,typeLabel,typeIcon,parse,jal,epoch,monthLen,wd,fmt,fmtJ,hijri,builtinHoliday,lessonId,forClass,eventsOn,holiday,lesson,parseDays,startMin,classDay,sched,span,timeAt,scheduleText,legacySched,cancelReason,cancelEvent,makeupOn,held,number,day,line,counts,dayHeader,monthText,dayText,sessions,classSessionsText,touch,NO_TIME}})();
 // ---- events in the normal backup (D.events) ----
 const EVS=()=>Array.isArray(D.events)?D.events:(D.events=[]);
+const GRD=()=>Array.isArray(D.grades)?D.grades:(D.grades=[]);
 function putEvent(ev){if(!os(ev,'id'))ev.id='E'+Date.now()+'_'+EVS().length;ev.ts=Date.now();const i=EVS().findIndex(o=>os(o,'id')==ev.id);if(i>=0)EVS()[i]=ev;else EVS().push(ev);Cal.touch();save()}
 function removeEvent(id){const i=EVS().findIndex(o=>os(o,'id')==id);if(i<0)return;EVS()[i]={id,type:'deleted',ts:Date.now()};Cal.touch();save()}
 function setLesson(cls,date,text){const id=Cal.lessonId(cls,date);if(!String(text).trim())return removeEvent(id);putEvent({id,type:Cal.LESSON,date,cls,note:String(text).trim()})}
@@ -582,6 +658,19 @@ delHol(id){removeEvent(id);draw()}};
 let MS='h',MSV=null,MM=null,MC='',FQ='',FP='all';
 const mNow=()=>{if(!MM){const j=Cal.jal(today());MM=[j[0],j[1]]}return MM};
 const stLabel=a=>E(Fin.name(a.student))+(a.cls?` <span class="m">• ${E(a.cls)}</span>`:'');
+// ---- prepared parent messages: "title|text" with {نام} {کلاس} {مانده} ----
+const DEF_MSG=[
+ 'یادآوری شهریه|سلام {نام} عزیز،\nماندهٔ شهریهٔ شما {مانده} تومان است. لطفاً در اولین فرصت اقدام فرمایید.\nبا تشکر',
+ 'تشکر از پرداخت|سلام {نام} عزیز،\nپرداخت شما دریافت شد. با تشکر از همراهی شما.',
+ 'اطلاع حضور|سلام {نام} عزیز،\nدر جلسهٔ اخیر کلاس {کلاس} غیبت ثبت شده است. لطفاً در صورت امکان هماهنگ کنید.'
+];
+const MSG=()=>{const l=SS().msgs;return Array.isArray(l)&&l.length?l:DEF_MSG};
+const msgFill=(t,s,a)=>t.replace(/\{نام\}/g,Fin.name(s)).replace(/\{کلاس\}/g,a.cls||'—').replace(/\{مانده\}/g,Fin.toman(Math.max(0,a.balance)));
+function msgPick(code){const s=Fin.stOf(code);if(!s)return;const a=Fin.acc(FN,s),L=MSG();
+ const m=modal('پیام به والدین',`<div class="m">یک پیام را انتخاب کنید؛ نام، کلاس و ماندهٔ همین زبان‌آموز جای‌گذاری می‌شود.</div>`+L.map((x,i)=>`<button class="p" style="display:block;width:100%;margin:6px 0;text-align:right" data-i="${i}">${E(x.split('|')[0]||'پیام')}</button>`).join(''),null);
+ m.querySelectorAll('[data-i]').forEach(b=>{b.onclick=()=>{m.remove();msgSend(code,+b.dataset.i)}})}
+function msgSend(code,i){const s=Fin.stOf(code);if(!s)return;const a=Fin.acc(FN,s),raw=MSG()[i]||'';const t=raw.slice(raw.indexOf('|')+1);if(!t.trim())return toast('متن پیام خالی است');shareRaw(msgFill(t,s,a))}
+function msgEdit(){modal('پیام‌های آماده',`<div class="m">هر پیام در یک خط به شکل «عنوان|متن». جای‌نگهدارها: {نام} {کلاس} {مانده}</div><textarea name="t" rows="10">${E(MSG().join('\n'))}</textarea>`,m=>{const L=uniq(m.querySelector('[name=t]').value.split(/\r?\n/)).filter(x=>x.includes('|'));if(!L.length)return toast('حداقل یک پیام با قالب «عنوان|متن» بنویسید'),false;SS().msgs=L;save();toast('ذخیره شد')})}
 function vM(){if(!MGR)return'<div class="w">بخش مالی فقط در «حالت مدیر» در دسترس است (تنظیمات).</div>';const back=MS!='h'?mBack("FU.go('h')",'مالی'):'';
 switch(MS){case'd':return back+mDebt();case'a':return back+mAccs();case'u':return back+mAcc();case'f':return back+mFees();case't':return back+mTeach();case'l':return back+mLed();case'n':return back+mMon();case'b':return back+mBk();default:return mHome()}}
 function mHome(){const j=Cal.jal(today()),m=Fin.month(FN,j[0],j[1]),db=Fin.debtors(FN,''),tot=db.reduce((x,a)=>x+a.balance,0),B=(s,l)=>`<button onclick="FU.go('${s}')">${l}</button>`;
@@ -593,7 +682,7 @@ function mAccs(){return`<input placeholder="🔎 جستجو" value="${E(FQ)}" on
 function mAcc(){const s=Fin.stOf(MSV);if(!s){MS='a';return mAccs()}const a=Fin.acc(FN,s),ins=Fin.installments(FN,a.code,a.paid,today()),pays=Fin.recsOf(FN,'payments',a.code);Fin.sortByDate(pays);
 const ln=(l,v,c)=>`<div class="r"><span>${l}</span><b${c?` style="color:${c}"`:''}>${v}</b></div>`;
 return`<div class="card"><b>${stLabel(a)}</b>${a.mode=='session'?ln('شهریه هر جلسه',Fin.toman(a.unit)+' × '+a.sessions+' جلسه',''):''}${ln('شهریه',Fin.toman(a.base))}${a.discount>0?ln('تخفیف',Fin.toman(a.discount)):''}${ln('مبلغ قابل پرداخت',Fin.toman(a.charge))}${ln('پرداخت شده',Fin.toman(a.paid))}${ln(a.balance>=0?'مانده بدهی':'بستانکار',Fin.toman(Math.abs(a.balance)),a.balance>0?'#d33':'')}${a.cls?'':'<div class="m">این زبان‌آموز در هیچ کلاسی نیست؛ شهریهٔ شخصی را تعیین کنید.</div>'}</div>
-<div class="tb"><button class="p" onclick="FU.pay('${E(a.code)}')">💳 ثبت پرداخت</button><button onclick="FU.fee('${E(a.code)}')">✏️ شهریه شخصی و تخفیف</button><button onclick="FU.inst('${E(a.code)}')">➕ افزودن قسط</button><button onclick="FU.rem('${E(a.code)}')">📨 یادآوری</button></div><div class="tb">${xbtn('fs',()=>Fin.studentText(FN,s),'statement-'+a.code)}</div>`
+<div class="tb"><button class="p" onclick="FU.pay('${E(a.code)}')">💳 ثبت پرداخت</button><button onclick="FU.fee('${E(a.code)}')">✏️ شهریه شخصی و تخفیف</button><button onclick="FU.inst('${E(a.code)}')">➕ افزودن قسط</button><button onclick="FU.rem('${E(a.code)}')">📨 یادآوری</button><button onclick="msgPick('${E(a.code)}')">💬 پیام آماده</button></div><div class="tb">${xbtn('fs',()=>Fin.studentText(FN,s),'statement-'+a.code)}</div>`
 +`<b>پرداخت‌ها</b>`+(pays.length?pays.map(p=>`<div class="card r" style="cursor:pointer" onclick="FU.rc('${E(os(p,'id'))}')"><div>${E(os(p,'date'))} — ${Fin.toman(ol(p,'amount'))}<div class="m">${Fin.methodLabel(os(p,'method'))}${os(p,'note')?' • '+E(os(p,'note')):''}</div></div><span>🧾</span></div>`).join(''):'<div class="m">پرداختی ثبت نشده است.</div>')
 +`<b>اقساط</b>`+(ins.length?ins.map(i=>`<div class="card r" style="cursor:pointer" onclick="FU.ic('${E(os(i.rec,'id'))}')"><div>${E(os(i.rec,'date'))} — ${Fin.toman(i.amount)}</div><b style="color:${i.status=='overdue'?'#d33':i.status=='paid'?'#2e7d32':'inherit'}">${Fin.statusLabel(i.status)}</b></div>`).join(''):'<div class="m">قسطی تعریف نشده است.</div>')}
 function mFees(){return`<div class="m">شهریهٔ هر کلاس برای کل ترم (یا برای کلاس خصوصی، به‌ازای هر جلسه) تعیین می‌شود. هر زبان‌آموز می‌تواند شهریهٔ شخصی یا تخفیف داشته باشد.</div>`+(C().map(c=>{const r=Fin.feeRule(FN,c.name);return`<div class="card r" style="cursor:pointer" onclick="FU.cf('${E(c.name).replace(/'/g,"\\'")}')"><div>${E(c.name)}<div class="m">${r?(os(r,'mode')=='session'?'هر جلسه ':'کل ترم ')+Fin.toman(ol(r,'fee')):'تعیین نشده'}</div></div><span>✏️</span></div>`}).join('')||'<div class="m">هنوز کلاسی ثبت نشده است.</div>')}
@@ -639,14 +728,38 @@ pwEnter(){const m=modal('ورود به حالت مدیر','<label>رمز ۴ رق
 pwSet(){const ch=Pw.has();modal(ch?'تغییر رمز حالت مدیر':'ساخت رمز ۴ رقمی',(ch?'<label>رمز فعلی<input name="cur" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label>':'')+'<label>رمز جدید (۴ رقم)<input name="p1" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label><label>تکرار رمز جدید<input name="p2" type="password" inputmode="numeric" maxlength="4" autocomplete="off"></label><label>پیام یادآوری (اختیاری؛ خودتان برای خودتان بنویسید)<input name="hint" value="'+E(Pw.hint())+'"></label>',m=>{const q=n=>m.querySelector('[name='+n+']').value;if(ch&&!Pw.check(q('cur')))return toast('رمز فعلی درست نیست'),false;const p=Pw.pin(q('p1'));if(p==null)return toast('رمز باید دقیقاً ۴ رقم باشد'),false;if(p!==Pw.pin(q('p2')))return toast('تکرار رمز یکسان نیست'),false;const h=q('hint').trim();if(h.indexOf(p)>=0)return toast('پیام یادآوری نباید خود رمز را داشته باشد'),false;if(!Pw.set(p,h))return toast('ذخیره نشد'),false;toast('رمز ذخیره شد')&&0;draw()})}};
 // ==== END CALENDAR / FINANCE UI ====
 // ---- settings / backup ----
-function vG(){return`<div class="card"><b>👩‍🏫 معلم‌ها و توضیحات آماده</b><div class="tb"><button onclick="lEd('t')">معلم‌ها</button><button onclick="lEd('o')">توضیحات آماده وضعیت بچه‌ها (تا ۸ مورد)</button></div></div><div class="card"><b>💾 پشتیبان‌گیری و تبادل</b><div class="m">داده‌ها فقط روی همین دستگاه ذخیره می‌شوند. پاک کردن اطلاعات مرورگر یا حذف برنامه آن‌ها را از بین می‌برد؛ پس مرتب پشتیبان بگیرید. «ادغام» پشتیبان معلم‌ها را بدون حذف چیزی به داده‌های فعلی اضافه می‌کند. پشتیبان‌ها بین Android و آیفون قابل تبادل‌اند.</div><div class="tb"><button class="p" onclick="bk()">دانلود فایل پشتیبان</button><button onclick="bkCopy()">کپی متن پشتیبان</button>${pickBtn('♻️ بازیابی / ادغام از فایل','.json,application/json','rb')}<button onclick="rp()">بازیابی / ادغام با چسباندن متن</button></div></div><div class="card"><b>👔 حالت مدیر</b><div class="m">با رمز ۴ رقمی (اختیاری) روشن می‌شود و تا وقتی خودتان خاموش نکنید روشن می‌ماند؛ خاموش کردن رمز نمی‌خواهد. فقط مدیر باید آن را روشن کند: در حالت مدیر می‌توان رویداد، آزمون، تعطیلی و لغو جلسه را در تقویم اضافه کرد و بخش «💰 مالی» دیده می‌شود. برنامه درسی جلسه‌ها را معلم هم می‌تواند بنویسد. این انتخاب فقط روی همین دستگاه می‌ماند و در پشتیبان نیست.</div><div class="tb"><button class="${MGR?'p':''}" onclick="FU.tg()">${MGR?'✅ حالت مدیر روشن است (برای خاموش کردن بزنید)':'⬜ حالت مدیر خاموش است (برای روشن کردن بزنید)'}</button><button onclick="FU.pwSet()">${Pw.has()?'🔑 تغییر رمز حالت مدیر…':'🔑 ساخت رمز ۴ رقمی برای حالت مدیر'}</button></div></div><div class="card m">نسخه وب 1.11</div>`}
+function vG(){return`<div class="card"><b>👩‍🏫 معلم‌ها و توضیحات آماده</b><div class="tb"><button onclick="lEd('t')">معلم‌ها</button><button onclick="lEd('o')">توضیحات آماده وضعیت بچه‌ها</button><button onclick="msgEdit()">💬 پیام‌های آماده</button></div></div><div class="card"><b>🕘 نسخه‌های خودکار</b><div class="m">برنامه روزی یک‌بار و پیش از هر بازیابی، خودش یک نسخهٔ کامل می‌سازد و ۷ نسخهٔ آخر را نگه می‌دارد. این نسخه‌ها روی همین دستگاه‌اند؛ برای نگهداری بیرونی از «دانلود فایل پشتیبان» استفاده کنید.</div><div class="tb"><button onclick="bkList()">مشاهده و بازیابی</button></div></div><div class="card"><b>💾 پشتیبان‌گیری و تبادل</b><div class="m">داده‌ها فقط روی همین دستگاه ذخیره می‌شوند. پاک کردن اطلاعات مرورگر یا حذف برنامه آن‌ها را از بین می‌برد؛ پس مرتب پشتیبان بگیرید. «ادغام» پشتیبان معلم‌ها را بدون حذف چیزی به داده‌های فعلی اضافه می‌کند. پشتیبان‌ها بین Android و آیفون قابل تبادل‌اند.</div><div class="tb"><button class="p" onclick="bk()">دانلود فایل پشتیبان</button><button onclick="bkCopy()">کپی متن پشتیبان</button>${pickBtn('♻️ بازیابی / ادغام از فایل','.json,application/json','rb')}<button onclick="rp()">بازیابی / ادغام با چسباندن متن</button></div></div><div class="card"><b>👔 حالت مدیر</b><div class="m">با رمز ۴ رقمی (اختیاری) روشن می‌شود و تا وقتی خودتان خاموش نکنید روشن می‌ماند؛ خاموش کردن رمز نمی‌خواهد. فقط مدیر باید آن را روشن کند: در حالت مدیر می‌توان رویداد، آزمون، تعطیلی و لغو جلسه را در تقویم اضافه کرد و بخش «💰 مالی» دیده می‌شود. برنامه درسی جلسه‌ها را معلم هم می‌تواند بنویسد. این انتخاب فقط روی همین دستگاه می‌ماند و در پشتیبان نیست.</div><div class="tb"><button class="${MGR?'p':''}" onclick="FU.tg()">${MGR?'✅ حالت مدیر روشن است (برای خاموش کردن بزنید)':'⬜ حالت مدیر خاموش است (برای روشن کردن بزنید)'}</button><button onclick="FU.pwSet()">${Pw.has()?'🔑 تغییر رمز حالت مدیر…':'🔑 ساخت رمز ۴ رقمی برای حالت مدیر'}</button></div></div><div class="card m">نسخه وب 1.15</div>`}
 function lEd(k){const t=k=='t',cur=t?TCH():OPT();modal(t?'معلم‌ها':'توضیحات آماده',`<div class="m">${t?'نام هر معلم در یک خط':'هر توضیح در یک خط (حداکثر ۸ مورد)'}</div><textarea name="t" rows="9">${E(cur.join('\n'))}</textarea>`,m=>{const L=uniq(m.querySelector('[name=t]').value.split(/\r?\n/));if(!t&&L.length>8)return toast('حداکثر ۸ مورد مجاز است'),false;SS()[t?'teachers':'options']=L;save();toast('ذخیره شد')})}
-const bj=()=>JSON.stringify({app:'class',version:7,exportedAt:Date.now(),students:D.students,classes:D.classes,reports:D.reports,notes:D.notes,settings:D.settings||{},events:EVS()},null,2);
-async function bk(){const j=bj(),n='class-backup-'+new Date().toISOString().slice(0,10)+'.json';let dl=null;if(typeof claude!=='undefined'){try{dl=await claude.use('downloads')}catch(e){}}if(dl){try{await dl.save({filename:n,data:j});return}catch(e){if(e&&e.code=='declined')return}}else if(await saveFile(n,j,'application/json')){toast('فایل پشتیبان آماده شد؛ آن را در Files یا جای امن ذخیره کنید');return}modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}
-async function bkCopy(){const j=bj();try{await navigator.clipboard.writeText(j);toast('متن پشتیبان کپی شد؛ در Notes یا پیام‌رسان بچسبانید')}catch(e){modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}}
-function restore(t){let r;try{r=JSON.parse(t)}catch(e){return toast('فایل پشتیبان معتبر نیست')}if(!r||!Array.isArray(r.students)||!Array.isArray(r.classes)||!Array.isArray(r.reports))return toast('فایل پشتیبان معتبر نیست');
-const m=modal('بازیابی اطلاعات','<b>ادغام:</b> اطلاعات فایل به داده‌های فعلی اضافه می‌شود و چیزی حذف یا عوض نمی‌شود (مناسب جمع‌بندی گزارش معلم‌ها).<br><br><b>جایگزینی:</b> اطلاعات فعلی کاملاً با فایل عوض می‌شود.',()=>{const x=mergeIn(r);draw();modal('نتیجه ادغام',mergeMsg(x))},'ادغام');
-m.querySelector('.bt').insertAdjacentHTML('afterbegin','<button class="d" id="rr">جایگزینی</button>');m.querySelector('#rr').onclick=()=>{m.remove();ask('اطلاعات فعلی حذف و با فایل عوض می‌شود. ادامه؟',()=>{const o=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x=='object');D={students:o(r.students),classes:o(r.classes).map(c=>({...c,students:Array.isArray(c.students)?c.students.map(String):[]})),reports:o(r.reports),notes:r.notes&&typeof r.notes=='object'?r.notes:{},settings:r.settings&&typeof r.settings=='object'?r.settings:(D.settings||{}),events:Array.isArray(r.events)?o(r.events):EVS()};Cal.touch();fix();save();toast('بازیابی انجام شد');draw()},'جایگزین')}}
+const bj=()=>JSON.stringify({app:'class',version:8,exportedAt:Date.now(),students:D.students,classes:D.classes,reports:D.reports,notes:D.notes,settings:D.settings||{},events:EVS(),grades:GRD()},null,2);
+// ---- automatic snapshots: IndexedDB (localStorage's ~5 MB is not enough to keep history) ----
+const AutoBk=(()=>{
+ const DB='class_auto_bk',ST='snaps',MAX=7;let dbp=null,seq=0;
+ const nid=()=>Date.now()*1000+(seq++%1000); // unique even for several snapshots in the same millisecond
+ const open=()=>dbp||(dbp=new Promise((res,rej)=>{try{if(!window.indexedDB)return rej(new Error('no-idb'));const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>{const d=r.result;if(!d.objectStoreNames.contains(ST))d.createObjectStore(ST,{keyPath:'id'})};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error||new Error('idb'))}catch(e){rej(e)}}));
+ const st=m=>open().then(d=>d.transaction(ST,m).objectStore(ST));
+ const req=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+ const all=async()=>{const s=await st('readonly');const l=(await req(s.getAll()))||[];return l.sort((a,b)=>b.at-a.at||b.id-a.id)};
+ return{
+  // bj() is evaluated before the first await, so a "before-restore" copy always holds the old state
+  async take(reason){const json=bj();try{const s=await st('readwrite');await req(s.put({id:nid(),at:Date.now(),reason,json}));const l=await all();for(const x of l.slice(MAX))await req((await st('readwrite')).delete(x.id));return true}catch(e){return false}},
+  async list(){try{return(await all()).slice(0,MAX)}catch(e){return[]}},
+  async get(id){try{const s=await st('readonly');return await req(s.get(id))}catch(e){return null}},
+  async daily(){try{const l=await this.list();if(l.length){const d=new Date(l[0].at),t=new Date();if(d.getFullYear()==t.getFullYear()&&d.getMonth()==t.getMonth()&&d.getDate()==t.getDate())return false}}catch(e){}return this.take('daily')}
+ };
+})();
+const snapLabel=s=>{const d=new Date(s.at);return Cal.fmt(ep(d.getFullYear(),d.getMonth()+1,d.getDate()))+' — '+p2(d.getHours())+':'+p2(d.getMinutes())+(s.reason=='before-restore'?' — قبل از بازیابی':'')};
+async function bkList(){const l=await AutoBk.list();const rows=l.length?l.map(s=>`<div class="card r"><div>${E(snapLabel(s))}<div class="m">${Math.max(1,Math.round(s.json.length/1024))}KB</div></div><button onclick="bkRestore(${s.id})">بازیابی</button></div>`).join(''):'<div class="m">هنوز نسخه‌ای ساخته نشده است.</div>';modal('نسخه‌های خودکار',rows)}
+async function bkRestore(id){const s=await AutoBk.get(id);if(!s)return toast('نسخه پیدا نشد');await AutoBk.take('before-restore');restore(s.json)}
+setTimeout(()=>{AutoBk.daily()},1500);
+async function bk(){const j=bj(),n='class-backup-'+new Date().toISOString().slice(0,10)+'.json';let dl=null;if(typeof claude!=='undefined'){try{dl=await claude.use('downloads')}catch(e){}}if(dl){try{await dl.save({filename:n,data:j});markExport();return}catch(e){if(e&&e.code=='declined')return}}else if(await saveFile(n,j,'application/json')){markExport();toast('فایل پشتیبان آماده شد؛ آن را در Files یا جای امن ذخیره کنید');return}modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}
+async function bkCopy(){const j=bj();try{await navigator.clipboard.writeText(j);markExport();toast('متن پشتیبان کپی شد؛ در Notes یا پیام‌رسان بچسبانید')}catch(e){modal('پشتیبان (کپی کنید)',`<textarea rows="10" readonly onfocus="this.select()">${E(j)}</textarea>`)}}
+function restore(t){let r;try{r=JSON.parse(t)}catch(e){return toast('فایل پشتیبان معتبر نیست')}
+ if(!r||typeof r!=='object')return toast('فایل پشتیبان معتبر نیست');
+ if(r.app&&r.app!=='class')return toast('این فایل، پشتیبان این برنامه نیست');
+ if(+r.version>8)return toast('این پشتیبان با نسخهٔ جدیدتری از برنامه ساخته شده است');
+ if(!Array.isArray(r.students)||!Array.isArray(r.classes)||!Array.isArray(r.reports))return toast('فایل پشتیبان معتبر نیست');
+const m=modal('بازیابی اطلاعات','<b>ادغام:</b> اطلاعات فایل به داده‌های فعلی اضافه می‌شود و چیزی حذف یا عوض نمی‌شود (مناسب جمع‌بندی گزارش معلم‌ها).<br><br><b>جایگزینی:</b> اطلاعات فعلی کاملاً با فایل عوض می‌شود.',()=>{AutoBk.take('before-restore');const x=mergeIn(r);draw();modal('نتیجه ادغام',mergeMsg(x))},'ادغام');
+m.querySelector('.bt').insertAdjacentHTML('afterbegin','<button class="d" id="rr">جایگزینی</button>');m.querySelector('#rr').onclick=()=>{m.remove();ask('اطلاعات فعلی حذف و با فایل عوض می‌شود. ادامه؟',()=>{AutoBk.take('before-restore');const o=a=>(Array.isArray(a)?a:[]).filter(x=>x&&typeof x=='object');D={students:o(r.students),classes:o(r.classes).map(c=>({...c,students:Array.isArray(c.students)?c.students.map(String):[]})),reports:o(r.reports),notes:r.notes&&typeof r.notes=='object'?r.notes:{},settings:r.settings&&typeof r.settings=='object'?r.settings:(D.settings||{}),events:Array.isArray(r.events)?o(r.events):EVS(),grades:Array.isArray(r.grades)?o(r.grades):[]};Cal.touch();fix();save();toast('بازیابی انجام شد');draw()},'جایگزین')}}
 const rb=async f=>{if(f)restore(await f.text())},rp=()=>modal('بازیابی',`<textarea name="t" rows="10" placeholder="متن فایل پشتیبان را اینجا بچسبانید"></textarea>`,m=>{restore(m.querySelector('[name=t]').value)},'ادامه');
 draw();
 try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
