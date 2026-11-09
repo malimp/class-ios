@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>کلاس</title>
-<meta name="theme-color" content="#3f51b5">
+<meta name="theme-color" content="#0b7a91">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -11,53 +11,78 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <style>
-:root{--bg:#f4f6fb;--c:#fff;--t:#1d2540;--m:#6b7390;--a:#3f51b5;--l:#e1e5f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#13161e;--c:#1d2230;--t:#e8ebf5;--m:#9aa3bd;--a:#8c9eff;--l:#2f3649}}
-:root[data-theme="dark"]{--bg:#13161e;--c:#1d2230;--t:#e8ebf5;--m:#9aa3bd;--a:#8c9eff;--l:#2f3649}
-*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--t);font:16px/1.7 system-ui,"Segoe UI",Tahoma,sans-serif;min-height:100%}
-header{padding:14px 16px 6px;font-size:22px;font-weight:700;text-align:center;position:relative}
-#ur{position:absolute;left:8px;top:10px;display:flex;gap:4px;direction:ltr}#ur button{font-size:20px;padding:2px 10px;line-height:1.2}#ur button:disabled{opacity:.3}
-nav{display:flex;gap:6px;padding:6px 10px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5}
-nav button{flex:1 0 auto;white-space:nowrap}
-main{padding:8px 12px 40px;max-width:760px;margin:auto}
+:root{--bg:#f0f5f6;--c:#fff;--t:#112530;--m:#586f79;--a:#0b7a91;--on:#fff;--l:#d9e4e7;--tint:#e1f0f3;--tint-t:#06566a;--ring:rgba(11,122,145,.24);--danger:#c0392b;--danger-bg:#fbe9e7;--danger-t:#8a2a20;--ok:#2a7d46;--warn-bg:#fff3d6;--warn-t:#6a4a00;--warn-b:#e0a62b;--sh:0 1px 2px rgba(17,37,48,.05),0 3px 10px rgba(17,37,48,.04);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1316;--c:#122025;--t:#e4eef2;--m:#8da4ae;--a:#4cc3d9;--on:#04222a;--l:#223439;--tint:#15333c;--tint-t:#8fdcea;--ring:rgba(76,195,217,.3);--danger:#ff7a6b;--danger-bg:#3a1d1b;--danger-t:#ffb4aa;--ok:#5fd08a;--warn-bg:#3a2f12;--warn-t:#f3d58a;--warn-b:#b88a22;--sh:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1316;--c:#122025;--t:#e4eef2;--m:#8da4ae;--a:#4cc3d9;--on:#04222a;--l:#223439;--tint:#15333c;--tint-t:#8fdcea;--ring:rgba(76,195,217,.3);--danger:#ff7a6b;--danger-bg:#3a1d1b;--danger-t:#ffb4aa;--ok:#5fd08a;--warn-bg:#3a2f12;--warn-t:#f3d58a;--warn-b:#b88a22;--sh:none;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--t);font:15.5px/1.7 system-ui,-apple-system,"SF Arabic","Segoe UI",Tahoma,sans-serif;min-height:100%;-webkit-font-smoothing:antialiased}
+/* app bar */
+header{display:flex;align-items:center;gap:11px;padding:12px 16px 8px;max-width:760px;margin:auto;position:relative}
+header .bm{flex:none;width:40px;height:40px;border-radius:11px;background:#fff url(logo.jpg) -26px -70px/180px 180px no-repeat;border:1px solid var(--l)}
+header .bt2{display:flex;flex-direction:column;line-height:1.25;min-width:0}header .bt2 b{font-size:18px;font-weight:700;letter-spacing:0}header .bt2 small{font-size:11.5px;color:var(--m);direction:ltr;text-align:right;letter-spacing:.2px}
+#ur{margin-inline-start:auto;display:flex;gap:6px;direction:ltr}#ur button{width:38px;height:38px;padding:0;font-size:19px;line-height:1;border-radius:50%;background:var(--tint);color:var(--tint-t);border:0;display:grid;place-items:center}#ur button:disabled{opacity:.35}
+/* tabs */
+nav{display:flex;gap:2px;padding:0 10px;overflow-x:auto;scrollbar-width:none;position:sticky;top:env(safe-area-inset-top,0px);background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:saturate(1.4) blur(10px);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--l);z-index:5}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:1 0 auto;white-space:nowrap;background:none;border:0;border-bottom:3px solid transparent;border-radius:0;padding:11px 13px 9px;color:var(--m);font-weight:600;font-size:14.5px}
+nav button.on{background:none;color:var(--a);border-bottom-color:var(--a)}
+main{padding:12px 14px 48px;max-width:760px;margin:auto}
+h3{font-size:17px;line-height:1.5;margin:18px 0 6px;font-weight:700}
+/* controls */
 button,input,select,textarea{font:inherit;color:inherit}
-button{background:var(--c);border:1px solid var(--l);border-radius:10px;padding:9px 14px;cursor:pointer}
-button.p,nav button.on{background:var(--a);color:#fff;border-color:var(--a)}
-button.d{color:#d33}
-.card{background:var(--c);border:1px solid var(--l);border-radius:12px;padding:10px 12px;margin:8px 0}
+button{background:var(--c);border:1px solid var(--l);border-radius:11px;padding:8px 14px;min-height:40px;cursor:pointer;font-weight:500;transition:background .12s,transform .08s}
+button:active{transform:scale(.97);background:var(--tint)}
+button.p{background:var(--a);color:var(--on);border-color:var(--a);font-weight:600}button.p:active{background:var(--a);filter:brightness(.92)}
+button.d{color:var(--danger);background:var(--danger-bg);border-color:transparent}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:3px solid var(--ring);outline-offset:1px;border-radius:8px}
+.card{background:var(--c);border:1px solid var(--l);border-radius:14px;padding:12px 14px;margin:9px 0;box-shadow:var(--sh)}
+.card.r[onclick]{transition:background .12s}.card.r[onclick]:active{background:var(--tint)}
 .r{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-.m{color:var(--m);font-size:13px}.w{background:#fff3cd;color:#664d03;border-radius:8px;padding:6px 10px;font-size:13px;margin:6px 0}
-.tb{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
-input,select,textarea{width:100%;background:var(--c);border:1px solid var(--l);border-radius:8px;padding:8px;margin:3px 0 8px}
-label{display:block;font-size:13px;color:var(--m)}label.f{display:inline-block;margin:0;cursor:pointer;font-size:16px}
+.m{color:var(--m);font-size:13px;line-height:1.6}
+.w{background:var(--warn-bg);color:var(--warn-t);border-radius:10px;border-inline-start:4px solid var(--warn-b);padding:8px 12px;font-size:13.5px;margin:8px 0}
+.tb{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+input,select,textarea{width:100%;min-height:44px;background:var(--c);border:1px solid var(--l);border-radius:11px;padding:9px 12px;margin:4px 0 10px;transition:border-color .12s,box-shadow .12s}
+textarea{min-height:88px}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--a);box-shadow:0 0 0 3px var(--ring)}
+input[type=checkbox],input[type=radio]{width:auto;min-height:0;accent-color:var(--a)}
+label{display:block;font-size:13px;font-weight:500;color:var(--m)}label.f{display:inline-block;margin:0;cursor:pointer;font-size:15.5px;color:var(--t);font-weight:400}
 pre{white-space:pre-wrap;margin:0;font:inherit}
-.ov{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:20}
-.mb{background:var(--c);width:100%;max-width:560px;max-height:88vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px))}
-.mb h3{margin:0 0 6px}.mc{overflow:auto}.bt{display:flex;gap:8px;margin-top:10px}.bt button{flex:1}
+table{border-collapse:collapse;max-width:100%}
+/* bottom sheet */
+.ov{position:fixed;inset:0;background:rgba(6,18,24,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.mb{background:var(--c);width:100%;max-width:560px;max-height:88vh;border-radius:22px 22px 0 0;display:flex;flex-direction:column;padding:8px 16px calc(14px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 30px rgba(0,0,0,.18);animation:up .2s ease-out}
+.mb::before{content:"";flex:none;width:38px;height:4px;border-radius:2px;background:var(--l);margin:2px auto 10px}
+.mb h3{margin:0 0 8px;font-size:18px}.mc{overflow:auto}.bt{display:flex;gap:8px;margin-top:12px}.bt button{flex:1;min-height:46px}
+@keyframes up{from{transform:translateY(28px);opacity:.4}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.mb{animation:none}button{transition:none}}
 /* calendar */
-.kg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin:8px 0}
-.kg>div{background:var(--c);border:1px solid var(--l);border-radius:8px;min-height:56px;padding:3px 1px;text-align:center;font-size:11px;line-height:1.35;cursor:pointer;overflow:hidden}
-.kg>div.kh{min-height:0;background:none;border:0;color:var(--m);cursor:default;font-size:13px;padding:2px}
+.kg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:10px 0}
+.kg>div{background:var(--c);border:1px solid var(--l);border-radius:10px;min-height:64px;padding:4px 2px;text-align:center;font-size:11px;line-height:1.35;cursor:pointer;overflow:hidden}
+.kg>div.kh{min-height:0;background:none;border:0;color:var(--m);cursor:default;font-size:12.5px;font-weight:600;padding:2px}
 .kg>div.ke{background:none;border:0;cursor:default}
-.kg b{display:block;font-size:15px}.kg i{display:block;font-style:normal;color:var(--a);font-size:10px;line-height:1.3;overflow-wrap:anywhere}.kg i.kc{text-decoration:line-through;opacity:.6}.kg i.kv{color:var(--m)}.kg>div{min-height:64px}
-.kg .kr b,.kg .kh.kr{color:#d33}.kg .kx{background:rgba(221,51,51,.12)}.kg .kt{outline:2px solid var(--a)}
-#ts{position:fixed;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:8px 14px;border-radius:10px;z-index:30;display:none;max-width:90%}
-.grp>summary{cursor:pointer;background:#d6def0;color:#1e325a;padding:11px 12px;border-radius:10px;margin:12px 0 6px;font-size:16px}@media(prefers-color-scheme:dark){.grp>summary{background:#2a3350;color:#dbe3f7}}
+.kg b{display:block;font-size:14.5px;font-weight:700}.kg i{display:block;font-style:normal;background:var(--tint);color:var(--tint-t);border-radius:4px;margin:2px 2px 0;padding:0 2px;font-size:10px;line-height:1.35;overflow-wrap:anywhere}.kg i.kc{text-decoration:line-through;background:none;color:var(--m);opacity:.8}.kg i.kv{background:none;color:var(--m)}
+.kg .kr b,.kg .kh.kr{color:var(--danger)}.kg .kx{background:var(--danger-bg)}.kg .kt{border-color:var(--a);box-shadow:inset 0 0 0 1.5px var(--a);background:var(--tint)}
+/* toast */
+#ts{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);background:rgba(14,30,38,.95);color:#fff;padding:10px 16px;border-radius:14px;z-index:30;display:none;max-width:90%;font-size:14px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+/* collapsible groups */
+.grp>summary{list-style:none;cursor:pointer;background:var(--tint);color:var(--tint-t);padding:11px 14px;border-radius:12px;margin:14px 0 6px;font-size:15.5px;font-weight:600}
+.grp>summary::-webkit-details-marker{display:none}.grp>summary::before{content:"◂";display:inline-block;margin-inline-end:8px;font-size:12px;transition:transform .15s}.grp[open]>summary::before{transform:rotate(-90deg)}
 /* certificate: only visible while printing, so the browser's "save as PDF" produces it */
-#cert{display:none;position:absolute;top:0;left:0;right:0;background:#fff;color:#1d2540;z-index:99}
-#cert .cw{width:270mm;height:188mm;margin:11mm auto;border:1.2mm solid #3f51b5;border-radius:4mm;box-sizing:border-box;padding:12mm 14mm;position:relative;display:flex;flex-direction:column;justify-content:space-between;text-align:center;overflow:hidden}
+#cert{display:none;position:absolute;top:0;left:0;right:0;background:#fff;color:#112530;z-index:99}
+#cert .cw{width:270mm;height:188mm;margin:11mm auto;border:1.2mm solid #0b7a91;border-radius:4mm;box-sizing:border-box;padding:12mm 14mm;position:relative;display:flex;flex-direction:column;justify-content:space-between;text-align:center;overflow:hidden}
 #cert .lg{position:absolute;top:50%;left:50%;width:130mm;transform:translate(-50%,-50%);opacity:.06}
-#cert .rc{width:190mm;margin:8mm auto;padding:10mm;border:.8mm solid #3f51b5;border-radius:3mm;box-sizing:border-box;position:relative;text-align:center;direction:rtl;overflow:hidden}#cert .rc .lg{position:absolute;top:50%;left:50%;width:120mm;transform:translate(-50%,-50%);opacity:.06}#cert .rc h1{font-size:9mm;margin:0;color:#26305a}#cert .rc .sub{font-size:4mm;color:#5a6785}#cert .rc .nm{font-size:8mm;font-weight:700;color:#3f51b5;margin:3mm 0 1mm}#cert .rc .grid{display:flex;gap:3mm;margin:4mm 0}#cert .rc .grid>div{flex:1;border:.3mm solid #c9d2e6;border-radius:2mm;padding:2mm}#cert .rc .grid b{display:block;font-size:3.4mm;color:#5a6785}#cert .rc .grid span{font-size:5.5mm;font-weight:700}#cert .rc table{width:100%;border-collapse:collapse;margin:3mm 0}#cert .rc td,#cert .rc th{border:.3mm solid #c9d2e6;padding:1.5mm;font-size:3.6mm}#cert .rc .tx{text-align:right;font-size:3.8mm;line-height:1.8;white-space:pre-wrap}#cert .rc .foot{display:flex;justify-content:space-between;font-size:3.6mm;color:#5a6785;margin-top:6mm}
-#cert h1{margin:0;font-size:12mm;letter-spacing:1mm;color:#26305a}
-#cert .sub{font-size:5mm;color:#5a6785;letter-spacing:.6mm}
+#cert .rc{width:190mm;margin:8mm auto;padding:10mm;border:.8mm solid #0b7a91;border-radius:3mm;box-sizing:border-box;position:relative;text-align:center;direction:rtl;overflow:hidden}#cert .rc .lg{position:absolute;top:50%;left:50%;width:120mm;transform:translate(-50%,-50%);opacity:.06}#cert .rc h1{font-size:9mm;margin:0;color:#10323d}#cert .rc .sub{font-size:4mm;color:#4e656e}#cert .rc .nm{font-size:8mm;font-weight:700;color:#0b7a91;margin:3mm 0 1mm}#cert .rc .grid{display:flex;gap:3mm;margin:4mm 0}#cert .rc .grid>div{flex:1;border:.3mm solid #cfe0e4;border-radius:2mm;padding:2mm}#cert .rc .grid b{display:block;font-size:3.4mm;color:#4e656e}#cert .rc .grid span{font-size:5.5mm;font-weight:700}#cert .rc table{width:100%;border-collapse:collapse;margin:3mm 0}#cert .rc td,#cert .rc th{border:.3mm solid #cfe0e4;padding:1.5mm;font-size:3.6mm}#cert .rc .tx{text-align:right;font-size:3.8mm;line-height:1.8;white-space:pre-wrap}#cert .rc .foot{display:flex;justify-content:space-between;font-size:3.6mm;color:#4e656e;margin-top:6mm}
+#cert h1{margin:0;font-size:12mm;letter-spacing:1mm;color:#10323d}
+#cert .sub{font-size:5mm;color:#4e656e;letter-spacing:.6mm}
 #cert .line{font-size:6mm}
-#cert .name{font-size:15mm;font-weight:700;color:#3f51b5;border-bottom:.5mm solid #c9d2e6;display:inline-block;padding:0 10mm 3mm;margin:0 auto}
-#cert .foot{display:flex;justify-content:space-between;font-size:4.5mm;color:#5a6785}
+#cert .name{font-size:15mm;font-weight:700;color:#0b7a91;border-bottom:.5mm solid #cfe0e4;display:inline-block;padding:0 10mm 3mm;margin:0 auto}
+#cert .foot{display:flex;justify-content:space-between;font-size:4.5mm;color:#4e656e}
 @media print{@page{size:A4 landscape;margin:0}body>*{display:none!important}#cert{display:block!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 
+
 </style></head><body>
-<header>🏫 کلاس<span id="ur"><button id="ud" title="برگشت (Ctrl+Z)" onclick="undo()" disabled>↶</button><button id="rd" title="جلوتر (Ctrl+Y)" onclick="redo()" disabled>↷</button></span></header><nav id="nv"></nav><main id="mn"></main><div id="ts"></div>
+<header><span class="bm" aria-hidden="true"></span><div class="bt2"><b>کلاس</b><small>Moradi English Class</small></div><span id="ur"><button id="ud" title="برگشت (Ctrl+Z)" onclick="undo()" disabled>↶</button><button id="rd" title="جلوتر (Ctrl+Y)" onclick="redo()" disabled>↷</button></span></header><nav id="nv"></nav><main id="mn"></main><div id="ts"></div>
 <script src="xlsx.full.min.js" onerror="this.remove();var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.crossOrigin='anonymous';document.head.appendChild(s)"></script>
 <script>
 const K='class_web_v1';let D={students:[],classes:[],reports:[],notes:{},settings:{},events:[],grades:[]},V='t',Q='',P=7,PR=null,CI=-1,SV=null,FS=null,FC='',FT='',CORRUPT=false;
@@ -263,7 +288,7 @@ const hasRep=(cls,e)=>R().some(r=>norm(r.class||'')==norm(cls)&&pd(r.date)==e);
 function missRows(days){const t=today(),from=t-days,out=[];C().filter(canC).forEach(c=>{if(Cal.parse(os(c,'start'))==null)return;const en=Cal.parse(os(c,'end'));const to=(en!=null&&en<t)?en:t-1;if(to<from)return;Cal.sessions(c,EVS(),from,to).forEach(x=>{const e=x[0];if(!hasRep(c.name,e))out.push({cls:c.name,e,n:x[1],d:Cal.fmt(e)})})});return out.sort((a,b)=>b.e-a.e)}
 function vT(){const t=today(),j=Cal.jal(t),d=Cal.day(C().filter(canC),EVS(),t,'',false),it=d.items.filter(i=>i.kind!='event');
  let s=`<div class="card"><b>☀️ امروز — ${DAYS[Cal.wd(t)]} ${j[2]} ${MONTHS[j[1]-1]} ${j[0]}</b>`;
- if(d.holiday)s+=`<div style="color:#d33">🔴 تعطیل: ${E(d.holiday)}</div>`;
+ if(d.holiday)s+=`<div style="color:var(--danger)">🔴 تعطیل: ${E(d.holiday)}</div>`;
  s+=(it.length?it.map(i=>`<div class="r" style="cursor:pointer" onclick="V='k';KU.open(${t})"><span>${i.time?E(i.time)+' — ':''}${E(i.cls)}</span><b style="font-size:13px">${i.kind=='cancelled'?'برگزار نمی‌شود':hasRep(i.cls,t)?'✅ گزارش ثبت شده':'⏳ بدون گزارش'}</b></div>`).join(''):'<div class="m">امروز جلسه‌ای نیست.</div>');
  s+=`<div class="tb"><button onclick="V='k';KU.open(${t})">📆 تقویم امروز</button><button class="p" onclick="fNew()">📝 گزارش امروز</button></div></div>`;
  const miss=missRows(7);
@@ -819,14 +844,14 @@ const kCell=e=>{const dy=Cal.day(C(),EVS(),e,KC,false);return{names:dy.items.fil
 function kMonth(){const[jy,jm]=kNow(),n=Cal.monthLen(jy,jm),first=Cal.epoch(jy,jm,1),off=Cal.wd(first),t=today(),ev=EVS();let cells=KSH.map((x,i)=>`<div class="kh${i==6?' kr':''}">${x}</div>`).join('')+'<div class="ke"></div>'.repeat(off),list='';
 for(let d=1;d<=n;d++){const e=first+d-1,h=Cal.holiday(ev,e),cd=kCell(e),due=MGR&&Fin.dueLines(FN,e).length;
 cells+=`<div class="${Cal.wd(e)==6||h?'kr ':''}${h?'kx ':''}${e==t?'kt':''}" onclick="KU.open(${e})"><b>${d}</b>${cd.names.map(x=>`<i${x.k=='cancelled'?' class="kc"':''}>${E(x.t)}</i>`).join('')}${cd.ev?`<i class="kv">📝${cd.ev}</i>`:''}${due?'<i>💰</i>':''}</div>`;
-const dy=Cal.day(C(),ev,e,KC,false),ex=dy.items.filter(i=>i.kind=='event');if(h||ex.length)list+=`<div class="card" onclick="KU.open(${e})" style="cursor:pointer"><b>${d} ${MONTHS[jm-1]}</b>${h?`<div style="color:#d33">🔴 ${E(h)}</div>`:''}${ex.map(i=>`<div>${E(Cal.line(i))}</div>`).join('')}</div>`}
+const dy=Cal.day(C(),ev,e,KC,false),ex=dy.items.filter(i=>i.kind=='event');if(h||ex.length)list+=`<div class="card" onclick="KU.open(${e})" style="cursor:pointer"><b>${d} ${MONTHS[jm-1]}</b>${h?`<div style="color:var(--danger)">🔴 ${E(h)}</div>`:''}${ex.map(i=>`<div>${E(Cal.line(i))}</div>`).join('')}</div>`}
 return`<div class="r"><button onclick="KU.mv(-1)">▶ قبلی</button><b style="font-size:18px">${MONTHS[jm-1]} ${jy}</b><button onclick="KU.mv(1)">بعدی ◀</button></div><div class="tb"><button onclick="KU.now()">امروز</button>${clsSel(KC,'KC=this.value;draw()')}</div><div class="kg">${cells}</div><div class="m">🔴 تعطیل (مناسبت‌های قمری با محاسبه تقریبی هستند و ممکن است یک روز اختلاف داشته باشند؛ مدیر می‌تواند تعطیلی را حذف یا اضافه کند) • زیر هر روز نام کلاس‌های همان روز آمده است (خط‌خورده = جلسهٔ لغوشده)</div>`
 +`<div class="tb">${MGR?'<button class="p" onclick="KU.add(null)">➕ رویداد</button>':''}<button onclick="KS=\'\';draw()">📚 جلسات کلاس‌ها</button></div><div class="tb">${xbtn('km',()=>Cal.monthText(C(),EV(),jy,jm,KC),'calendar-'+jy+'-'+p2(jm)).replace(/<button onclick="xo\('i','km'\)">[^<]*<\/button>/,'')}<button class="p" onclick="kImg()">🖼 تصویر صفحهٔ تقویم</button></div>`+(list?`<b>رویدادها و تعطیلی‌های این ماه</b>${list}`:'<div class="m">رویداد یا تعطیلی خاصی در این ماه ثبت نشده است.</div>')}
 const EV=()=>EVS();
 function kDay(){const e=KD,ev=EVS(),dy=Cal.day(C(),ev,e,KC);KI=dy.items;const ds=Cal.fmt(e);
 const cust=Cal.eventsOn(ev,e).find(o=>os(o,'type')==Cal.HOLIDAY),hid=Cal.eventsOn(ev,e).find(o=>os(o,'type')==Cal.HIDE),bi=Cal.builtinHoliday(e);
 let h=`<div class="tb"><button onclick="KU.back()">‹ ماه</button><button onclick="KU.step(-1)">▶ روز قبل</button><button onclick="KU.step(1)">روز بعد ◀</button></div><div class="card"><b>${E(Cal.dayHeader(e))}</b></div>`;
-if(dy.holiday!=null)h+=`<div class="w" style="background:#fde8e8;color:#8a1c1c">🔴 تعطیل: ${E(dy.holiday)}${MGR&&cust?` <button class="d" onclick="KU.delHol('${E(os(cust,'id'))}')">حذف</button>`:''}</div>`;
+if(dy.holiday!=null)h+=`<div class="w" style="background:var(--danger-bg);color:var(--danger-t)">🔴 تعطیل: ${E(dy.holiday)}${MGR&&cust?` <button class="d" onclick="KU.delHol('${E(os(cust,'id'))}')">حذف</button>`:''}</div>`;
 if(MGR&&hid&&bi)h+=`<div class="w">تعطیلی رسمی «${E(bi)}» برای این روز حذف شده است. <button onclick="KU.delHol('${E(os(hid,'id'))}')">↩️ بازگرداندن</button></div>`;
 h+=`<div class="tb"><div style="flex:1 0 100%"><label>کلاس${clsSel(KC,'KC=this.value;draw()')}</label></div></div>`;
 if(!dy.items.length)h+='<div class="m">جلسه یا رویدادی در این روز نیست.</div>';
@@ -884,14 +909,14 @@ function mHome(){const j=Cal.jal(today()),m=Fin.month(FN,j[0],j[1]),db=Fin.debto
 return`<div class="card"><b>📊 ${MONTHS[j[1]-1]} ${j[0]}</b><div>درآمد شهریه: ${Fin.toman(m[0])}</div><div>درآمد دیگر: ${Fin.toman(m[1])}</div><div>هزینه‌ها: ${Fin.toman(m[2])}</div><div>حقوق معلم‌ها: ${Fin.toman(m[3])}</div><div><b>${m[4]>=0?'سود خالص':'زیان'}: ${Fin.toman(Math.abs(m[4]))}</b></div></div><div class="card"><b>⏳ مجموع بدهی زبان‌آموزان: ${Fin.toman(tot)}</b><div class="m">${db.length} بدهکار</div></div>
 <div class="tb"><button class="p" onclick="FU.pay(null)">💳 ثبت پرداخت</button>${B('a','👥 حساب زبان‌آموزان')}${B('d','⏳ بدهکاران')}${B('f','🏷 شهریه کلاس‌ها')}${B('t','👩‍🏫 حقوق معلم‌ها')}${B('l','🧾 درآمد و هزینه‌ها')}${B('n','📈 گزارش ماهانه')}${B('b','💾 پشتیبان مالی')}</div><div class="m">مبالغ به تومان است. اطلاعات مالی فقط روی همین دستگاه می‌ماند و در پشتیبان معمولی نیست؛ برای آن «پشتیبان مالی» جدا بگیرید.</div>`}
 function mDebt(){const l=Fin.debtors(FN,MC);return`<label>کلاس${clsSel(MC,'MC=this.value;draw()')}</label><div class="tb">${xbtn('fd',()=>Fin.debtorsText(FN,MC),'debtors')}</div>`+(l.length?l.map(a=>`<div class="card r"><div>${stLabel(a)}<div class="m">${Fin.toman(a.balance)}</div></div><div><button onclick="FU.acc('${E(a.code)}')">حساب</button> <button onclick="FU.rem('${E(a.code)}')">📨 یادآوری</button></div></div>`).join(''):'<div class="m">بدهکاری وجود ندارد.</div>')}
-function mAccList(){const q=norm(FQ);return A().map(s=>[s,Fin.acc(FN,s)]).filter(([s])=>norm(s.first+' '+s.last).includes(q)).map(([s,a])=>`<div class="card r" style="cursor:pointer" onclick="FU.acc('${E(a.code)}')"><div>${stLabel(a)}</div><div style="color:${a.balance>0?'#d33':'inherit'}">${a.balance>0?'بدهی ':a.balance<0?'بستانکار ':''}${Fin.fmt(Math.abs(a.balance))}</div></div>`).join('')||'<div class="m">زبان‌آموزی نیست.</div>'}
+function mAccList(){const q=norm(FQ);return A().map(s=>[s,Fin.acc(FN,s)]).filter(([s])=>norm(s.first+' '+s.last).includes(q)).map(([s,a])=>`<div class="card r" style="cursor:pointer" onclick="FU.acc('${E(a.code)}')"><div>${stLabel(a)}</div><div style="color:${a.balance>0?'var(--danger)':'inherit'}">${a.balance>0?'بدهی ':a.balance<0?'بستانکار ':''}${Fin.fmt(Math.abs(a.balance))}</div></div>`).join('')||'<div class="m">زبان‌آموزی نیست.</div>'}
 function mAccs(){return`<input placeholder="🔎 جستجو" value="${E(FQ)}" oninput="FQ=this.value;$('#al').innerHTML=mAccList()"><div id="al">${mAccList()}</div>`}
 function mAcc(){const s=Fin.stOf(MSV);if(!s){MS='a';return mAccs()}const a=Fin.acc(FN,s),ins=Fin.installments(FN,a.code,a.paid,today()),pays=Fin.recsOf(FN,'payments',a.code);Fin.sortByDate(pays);
 const ln=(l,v,c)=>`<div class="r"><span>${l}</span><b${c?` style="color:${c}"`:''}>${v}</b></div>`;
-return`<div class="card"><b>${stLabel(a)}</b>${a.mode=='session'?ln('شهریه هر جلسه',Fin.toman(a.unit)+' × '+a.sessions+' جلسه',''):''}${ln('شهریه',Fin.toman(a.base))}${a.discount>0?ln('تخفیف',Fin.toman(a.discount)):''}${ln('مبلغ قابل پرداخت',Fin.toman(a.charge))}${ln('پرداخت شده',Fin.toman(a.paid))}${ln(a.balance>=0?'مانده بدهی':'بستانکار',Fin.toman(Math.abs(a.balance)),a.balance>0?'#d33':'')}${a.cls?'':'<div class="m">این زبان‌آموز در هیچ کلاسی نیست؛ شهریهٔ شخصی را تعیین کنید.</div>'}</div>
+return`<div class="card"><b>${stLabel(a)}</b>${a.mode=='session'?ln('شهریه هر جلسه',Fin.toman(a.unit)+' × '+a.sessions+' جلسه',''):''}${ln('شهریه',Fin.toman(a.base))}${a.discount>0?ln('تخفیف',Fin.toman(a.discount)):''}${ln('مبلغ قابل پرداخت',Fin.toman(a.charge))}${ln('پرداخت شده',Fin.toman(a.paid))}${ln(a.balance>=0?'مانده بدهی':'بستانکار',Fin.toman(Math.abs(a.balance)),a.balance>0?'var(--danger)':'')}${a.cls?'':'<div class="m">این زبان‌آموز در هیچ کلاسی نیست؛ شهریهٔ شخصی را تعیین کنید.</div>'}</div>
 <div class="tb"><button class="p" onclick="FU.pay('${E(a.code)}')">💳 ثبت پرداخت</button><button onclick="FU.fee('${E(a.code)}')">✏️ شهریه شخصی و تخفیف</button><button onclick="FU.inst('${E(a.code)}')">➕ افزودن قسط</button><button onclick="FU.rem('${E(a.code)}')">📨 یادآوری</button><button onclick="msgPick('${E(a.code)}')">💬 پیام آماده</button></div><div class="tb">${xbtn('fs',()=>Fin.studentText(FN,s),'statement-'+a.code)}</div>`
 +`<b>پرداخت‌ها</b>`+(pays.length?pays.map(p=>`<div class="card r" style="cursor:pointer" onclick="FU.rc('${E(os(p,'id'))}')"><div>${E(os(p,'date'))} — ${Fin.toman(ol(p,'amount'))}<div class="m">${Fin.methodLabel(os(p,'method'))}${os(p,'note')?' • '+E(os(p,'note')):''}</div></div><span>🧾</span></div>`).join(''):'<div class="m">پرداختی ثبت نشده است.</div>')
-+`<b>اقساط</b>`+(ins.length?ins.map(i=>`<div class="card r" style="cursor:pointer" onclick="FU.ic('${E(os(i.rec,'id'))}')"><div>${E(os(i.rec,'date'))} — ${Fin.toman(i.amount)}</div><b style="color:${i.status=='overdue'?'#d33':i.status=='paid'?'#2e7d32':'inherit'}">${Fin.statusLabel(i.status)}</b></div>`).join(''):'<div class="m">قسطی تعریف نشده است.</div>')}
++`<b>اقساط</b>`+(ins.length?ins.map(i=>`<div class="card r" style="cursor:pointer" onclick="FU.ic('${E(os(i.rec,'id'))}')"><div>${E(os(i.rec,'date'))} — ${Fin.toman(i.amount)}</div><b style="color:${i.status=='overdue'?'var(--danger)':i.status=='paid'?'var(--ok)':'inherit'}">${Fin.statusLabel(i.status)}</b></div>`).join(''):'<div class="m">قسطی تعریف نشده است.</div>')}
 function mFees(){return`<div class="m">شهریهٔ هر کلاس برای کل ترم (یا برای کلاس خصوصی، به‌ازای هر جلسه) تعیین می‌شود. هر زبان‌آموز می‌تواند شهریهٔ شخصی یا تخفیف داشته باشد.</div>`+(C().slice().sort(cmpC).map(c=>{const r=Fin.feeRule(FN,c.name);return`<div class="card r" style="cursor:pointer" onclick="FU.cf('${E(c.name).replace(/'/g,"\\'")}')"><div>${E(c.name)}<div class="m">${r?(os(r,'mode')=='session'?'هر جلسه ':'کل ترم ')+Fin.toman(ol(r,'fee')):'تعیین نشده'}</div></div><span>✏️</span></div>`}).join('')||'<div class="m">هنوز کلاسی ثبت نشده است.</div>')}
 function mTeach(){const[jy,jm]=mNow(),all=FP=='all',from=all?Fin.ALL_FROM:Cal.epoch(jy,jm,1),to=all?Fin.ALL_TO:Cal.epoch(jy,jm,Cal.monthLen(jy,jm)),lab=all?'':MONTHS[jm-1]+' '+jy,sal=Fin.live(FN,'salaries');Fin.sortByDate(sal);
 return`<div class="tb"><button class="${all?'p':''}" onclick="FP='all';draw()">کل زمان</button><button class="${all?'':'p'}" onclick="FP='month';draw()">یک ماه</button>${all?'':`<button onclick="FU.mm(-1)">▶</button><b>${lab}</b><button onclick="FU.mm(1)">◀</button>`}</div><div class="tb">${xbtn('ft',()=>Fin.teachersText(FN,from,to,lab),'teachers')}</div>`
