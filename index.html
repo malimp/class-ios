@@ -72,7 +72,7 @@ table{border-collapse:collapse;max-width:100%}
 #cert{display:none;position:absolute;top:0;left:0;right:0;background:#fff;color:#112530;z-index:99}
 #cert .cw{width:270mm;height:188mm;margin:11mm auto;border:1.2mm solid #0b7a91;border-radius:4mm;box-sizing:border-box;padding:12mm 14mm;position:relative;display:flex;flex-direction:column;justify-content:space-between;text-align:center;overflow:hidden}
 #cert .lg{position:absolute;top:50%;left:50%;width:130mm;transform:translate(-50%,-50%);opacity:.06}
-#cert .rc{width:190mm;margin:8mm auto;padding:10mm;border:.8mm solid #0b7a91;border-radius:3mm;box-sizing:border-box;position:relative;text-align:center;direction:rtl;overflow:hidden}#cert .rc .lg{position:absolute;top:50%;left:50%;width:120mm;transform:translate(-50%,-50%);opacity:.06}#cert .rc h1{font-size:9mm;margin:0;color:#10323d}#cert .rc .sub{font-size:4mm;color:#4e656e}#cert .rc .nm{font-size:8mm;font-weight:700;color:#0b7a91;margin:3mm 0 1mm}#cert .rc .grid{display:flex;gap:3mm;margin:4mm 0}#cert .rc .grid>div{flex:1;border:.3mm solid #cfe0e4;border-radius:2mm;padding:2mm}#cert .rc .grid b{display:block;font-size:3.4mm;color:#4e656e}#cert .rc .grid span{font-size:5.5mm;font-weight:700}#cert .rc table{width:100%;border-collapse:collapse;margin:3mm 0}#cert .rc td,#cert .rc th{border:.3mm solid #cfe0e4;padding:1.5mm;font-size:3.6mm}#cert .rc .tx{text-align:right;font-size:3.8mm;line-height:1.8;white-space:pre-wrap}#cert .rc .foot{display:flex;justify-content:space-between;font-size:3.6mm;color:#4e656e;margin-top:6mm}
+#cert .rc{width:190mm;margin:8mm auto;padding:10mm;border:.8mm solid #0b7a91;border-radius:3mm;box-sizing:border-box;position:relative;text-align:center;direction:rtl;overflow:hidden}#cert .rc .lg{position:absolute;top:50%;left:50%;width:120mm;transform:translate(-50%,-50%);opacity:.06}#cert .rc h1{font-size:9mm;margin:0;color:#10323d}#cert .rc .sub{font-size:4mm;color:#4e656e}#cert .rc .nm{font-size:8mm;font-weight:700;color:#0b7a91;margin:3mm 0 1mm}#cert .rc .grid{display:flex;gap:3mm;margin:4mm 0}#cert .rc .grid>div{flex:1;border:.3mm solid #cfe0e4;border-radius:2mm;padding:2mm}#cert .rc .grid b{display:block;font-size:3.4mm;color:#4e656e}#cert .rc .grid span{font-size:5.5mm;font-weight:700}#cert .rc table{width:100%;border-collapse:collapse;margin:3mm 0}#cert .rc td,#cert .rc th{border:.3mm solid #cfe0e4;padding:1.5mm;font-size:3.6mm}#cert .rc .tx{text-align:right;font-size:3.8mm;line-height:1.8;white-space:pre-wrap}#cert .rc .sec{text-align:right;font-size:4.2mm;font-weight:700;color:#10323d;border-bottom:.3mm solid #cfe0e4;padding-bottom:1mm;margin:5mm 0 2mm}#cert .rc .foot{display:flex;justify-content:space-between;font-size:3.6mm;color:#4e656e;margin-top:6mm}
 #cert h1{margin:0;font-size:12mm;letter-spacing:1mm;color:#10323d}
 #cert .sub{font-size:5mm;color:#4e656e;letter-spacing:.6mm}
 #cert .line{font-size:6mm}
@@ -244,12 +244,13 @@ function rcData(code){const s=A().find(x=>x.code==code);if(!s)return null;const 
  const weak=(t.st?t.st.cats.filter(k=>k.n).sort((x,y)=>y.n-x.n).slice(0,3):[]);
  return{s,c,t,at,sk,weak,ps:c&&planOf(c).length?planStat(c):null,note:(D.notes['studentNoteRC_'+code]||'').trim()}}
 function rcText(code){const d=rcData(code);if(!d)return'';const{s,c,t,at,sk,weak,ps,note}=d;let r='کارنامهٔ ترمی — '+s.first+' '+s.last+'\n';
- if(c)r+='کلاس: '+c.name+(c.level?' ('+c.level+')':'')+(c.start||c.end?' • دوره: '+(c.start||'—')+' تا '+(c.end||'—'):'')+'\n';r+='\n';
- r+='نمرهٔ کل دوره: '+totLine(t)+'\n';
- if(at)r+='حضور: '+(at.pct==null?'—':fm1(at.pct)+'٪')+' • غیبت '+at.ab+' • تأخیر '+at.lt+' (از '+at.t+' جلسهٔ دارای گزارش)\n';
+ if(c)r+='کلاس: '+c.name+(c.level?' ('+c.level+')':'')+' • ترم '+stTm(s,c)+(c.start||c.end?' • دوره: '+(c.start||'—')+' تا '+(c.end||'—'):'')+'\n';r+='\n';
+ if(at)r+='حضور: '+at.t+' جلسه برگزار شده • غیبت '+at.ab+' • تأخیر '+at.lt+'\n';
  if(ps)r+='پیشرفت برنامهٔ درسی کلاس: '+ps.done+' از '+ps.total+' درس ('+ps.pct+'٪)\n';
- if(t.st&&t.st.cats.length){r+='\nنمرهٔ بخش‌ها:\n';t.st.cats.forEach(k=>{r+='• '+k.t+' : '+fm1(k.score)+(k.n?' ('+k.n+' بار ثبت شد)':'')+'\n'})}
- if(sk.length)r+='\nنمره‌های مهارتی (آزمون پایان دوره): '+sk.map(x=>x.n+' '+x.v).join(' • ')+'\n';
+ const secs=t.st?t.st.cats.filter(k=>Math.round(k.score*10)/10<100):[];
+ if(secs.length){r+='\nنمرهٔ بخش‌ها:\n';secs.forEach(k=>{r+='• '+k.t+' : '+fm1(k.score)+(k.n?' ('+k.n+' بار ثبت شد)':'')+'\n'})}
+ r+='\nنمرهٔ کل دوره: '+totLine(t)+'\n';
+ if(sk.length){r+='\nآزمون پایان دوره:\n';sk.forEach(x=>{r+='• '+x.n+' : '+x.v+'\n'})}
  if(weak.length){r+='\nنکات برای پیشرفت بیشتر:\n';weak.forEach(k=>{r+='• '+k.t+' ('+k.n+' بار) — مرور و تمرین بیشتر در منزل توصیه می‌شود.\n'})}
  if(note)r+='\nتوضیح معلم: '+note+'\n';return r}
 function rcPv(){const e=document.getElementById('rcpv');if(e)e.textContent=rcText(RCC)}
@@ -258,12 +259,13 @@ function rcDlg(code){const d=rcData(code);if(!d)return;RCC=code;
  m.querySelector('.bt').insertAdjacentHTML('afterbegin','<button class="p" id="rcp">🖨 چاپ / PDF</button><button id="rcm">💬 ارسال به والدین</button>');
  m.querySelector('#rcp').onclick=()=>rcPrint(code);m.querySelector('#rcm').onclick=()=>parentSend(code,rcText(code))}
 function rcPrint(code){const d=rcData(code);if(!d)return;const{s,c,t,at,sk,weak,ps,note}=d;const old=document.getElementById('cert');if(old)old.remove();
- const rows=(t.st?t.st.cats:[]).map(k=>`<tr><td style="text-align:right">${E(k.t)}</td><td>${k.n||'—'}</td><td>${fm1(k.score)}</td></tr>`).join('');
+ const rows=(t.st?t.st.cats:[]).filter(k=>Math.round(k.score*10)/10<100).map(k=>`<tr><td style="text-align:right">${E(k.t)}</td><td>${k.n||'—'}</td><td>${fm1(k.score)}</td></tr>`).join('');
  const el=document.createElement('div');el.id='cert';
- el.innerHTML=`<div class="rc"><img class="lg" src="logo.jpg" alt=""><h1>کارنامهٔ ترمی</h1><div class="sub">Moradi English Class</div><div class="nm">${E(s.first)} ${E(s.last)}</div><div class="sub">${c?'کلاس '+E(c.name)+(c.level?' — سطح '+E(c.level):'')+(c.start||c.end?' • '+E(c.start||'—')+' تا '+E(c.end||'—'):''):''}</div>
- <div class="grid"><div><b>نمرهٔ کل دوره</b><span>${t.final==null?'—':fm1(t.final)}</span></div><div><b>درصد حضور</b><span>${at&&at.pct!=null?fm1(at.pct)+'٪':'—'}</span></div><div><b>غیبت / تأخیر</b><span>${at?at.ab+' / '+at.lt:'—'}</span></div>${ps?`<div><b>پیشرفت برنامه</b><span>${ps.pct}٪</span></div>`:''}</div>
- ${rows?`<table><tr><th style="text-align:right">بخش</th><th>دفعات ثبت</th><th>نمره</th></tr>${rows}</table>`:''}
- ${sk.length?`<div class="tx"><b>نمره‌های مهارتی (آزمون پایان دوره):</b> ${sk.map(x=>E(x.n)+' '+x.v).join(' • ')}</div>`:''}
+ el.innerHTML=`<div class="rc"><img class="lg" src="logo.jpg" alt=""><h1>کارنامهٔ ترمی</h1><div class="sub">Moradi English Class</div><div class="nm">${E(s.first)} ${E(s.last)}</div><div class="sub">${c?'کلاس '+E(c.name)+(c.level?' — سطح '+E(c.level):'')+' • ترم '+stTm(s,c)+(c.start||c.end?' • '+E(c.start||'—')+' تا '+E(c.end||'—'):''):''}</div>
+ ${at?`<div class="sec">حضور</div><div class="grid"><div><b>جلسات برگزار شده</b><span>${at.t}</span></div><div><b>غیبت</b><span>${at.ab}</span></div><div><b>تأخیر</b><span>${at.lt}</span></div>${ps?`<div><b>پیشرفت برنامه</b><span>${ps.pct}٪</span></div>`:''}</div>`:''}
+ ${rows?`<div class="sec">نمرهٔ بخش‌ها</div><table><tr><th style="text-align:right">بخش</th><th>دفعات ثبت</th><th>نمره</th></tr>${rows}</table>`:''}
+ <div class="sec">نمرهٔ کل دوره</div><div class="grid"><div><span>${t.final==null?'—':fm1(t.final)}</span></div></div>
+ ${sk.length?`<div class="sec">آزمون پایان دوره</div><table>${sk.map(x=>`<tr><td style="text-align:right">${E(x.n)}</td><td>${x.v}</td></tr>`).join('')}</table>`:''}
  ${weak.length?`<div class="tx"><b>نکات برای پیشرفت بیشتر:</b>\n${weak.map(k=>'• '+E(k.t)+' ('+k.n+' بار) — مرور و تمرین بیشتر در منزل توصیه می‌شود.').join('\n')}</div>`:''}
  ${note?`<div class="tx"><b>توضیح معلم:</b> ${E(note)}</div>`:''}
  <div class="foot"><span>تاریخ: ${todayJ()}</span><span>امضای مدیر آموزشگاه</span></div></div>`;
@@ -491,7 +493,7 @@ const logo=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror
 const c0=document.createElement('canvas'),m=c0.getContext('2d');
 const fit=(t,w,f)=>{m.font=f;if(m.measureText(t).width<=w)return t;while(t.length>1&&m.measureText(t+'…').width>w)t=t.slice(0,-1);return t+'…'};
 const wrap=(t,w,f)=>{m.font=f;const o=[];let cur='';t.split(' ').forEach(wd=>{const u=cur?cur+' '+wd:wd;if(cur&&m.measureText(u).width>w){o.push(cur);cur=wd}else cur=u});o.push(cur);while(o.length>3){const l=o.pop();o[o.length-1]+=' '+l}o.forEach((l,i)=>o[i]=fit(l,w,f));return o};
-const cells=[];for(let d=1;d<=n;d++){const e=first+d-1,dy=Cal.day(C(),ev,e,cf,false),h=dy.holiday;cells.push({d,e,h,names:dy.items.filter(i=>i.kind!='event').map(i=>({t:i.cls,k:i.kind,L:wrap(i.cls+(i.kind=='cancelled'?' (لغو)':i.kind=='makeup'?' (جبرانی)':''),cw-10,'22px '+F)})),evs:dy.items.filter(i=>i.kind=='event')})}
+const cells=[];for(let d=1;d<=n;d++){const e=first+d-1,dy=Cal.day(C(),ev,e,cf,false),h=dy.holiday;cells.push({d,e,h,names:dy.items.filter(i=>i.kind!='event').map(i=>({t:i.cls,k:i.kind,L:wrap(i.cls+(i.term?' ت'+i.term:'')+(i.kind=='cancelled'?' (لغو)':i.kind=='makeup'?' (جبرانی)':''),cw-10,'22px '+F)})),evs:dy.items.filter(i=>i.kind=='event')})}
 const rows=Math.ceil((off+n)/7),rh=[];for(let r=0;r<rows;r++){let mx=0;for(let k=0;k<7;k++){const i=r*7+k-off;if(i<0||i>=n)continue;const c=cells[i];mx=Math.max(mx,c.names.reduce((a,z)=>a+z.L.length,0)+(c.evs.length?1:0))}rh.push(Math.max(96,52+mx*26+14))}
 const list=[];cells.forEach(c=>{if(c.h||c.evs.length)list.push({c,h:c.h,evs:c.evs})});
 const head=150,hd=44,gridH=rh.reduce((a,b)=>a+b+G,0),legH=70+list.reduce((a,x)=>a+(x.h?32:0)+x.evs.length*32+16,0),H=head+hd+gridH+legH+M;
@@ -692,23 +694,25 @@ const span=(s,e)=>{s=String(s??'').trim();e=String(e??'').trim();return s==''?e:
 const timeAt=(c,e)=>{const sc=sched(c);if(!sc)return os(c,'time');const d=own(sc,String(wd(e)));return OBJ(d)?span(d.s,d.e):''};
 const scheduleText=c=>{const sc=sched(c);if(!sc){const d=os(c,'days'),t=os(c,'time');return(d==''?'—':d)+(t==''?'':' • ساعت '+t)}const out=[];for(let i=0;i<7;i++){const d=own(sc,String(i));if(!OBJ(d))continue;const sp=span(d.s,d.e);out.push(DAYS[i]+(sp==''?'':' '+sp))}return out.length?out.join('، '):'—'};
 const legacySched=c=>{const out={},d=parseDays(os(c,'days')),re=/(\d{1,2})[:.٫](\d{2})/g,n=norm(os(c,'time')),m1=re.exec(n),m2=re.exec(n),hm=m=>m&&+m[1]<24?p2(+m[1])+':'+m[2]:'';for(let i=0;i<7;i++)if(d[i])out[i]={s:hm(m1),e:hm(m2)};return out};
-const classDay=(c,e)=>{const s=parse(os(c,'start')),en=parse(os(c,'end'));if(s!=null&&e<s)return false;if(en!=null&&e>en)return false;const sc=sched(c);if(sc)return OBJ(own(sc,String(wd(e))));return parseDays(os(c,'days'))[wd(e)]};
+const termAt=(c,e)=>{const ts=c&&c.terms;if(OBJ(ts)){let best=null,any=false;for(const k of Object.keys(ts)){const n=+k,tt=ts[k];if(!(n>=1&&n<=4)||!OBJ(tt))continue;const s=parse(os(tt,'start')),en=parse(os(tt,'end'));if(s==null&&en==null)continue;any=true;if(s!=null&&e<s)continue;if(en!=null&&e>en)continue;if(best==null||(s==null?-1e9:s)>(best.s==null?-1e9:best.s))best={n,s,en}}if(any)return best}const s=parse(os(c,'start')),en=parse(os(c,'end'));if(s!=null&&e<s)return null;if(en!=null&&e>en)return null;return{n:tmOf(c),s,en}};
+const termRanges=c=>{const out=[],ts=c&&c.terms;if(OBJ(ts))for(const k of Object.keys(ts)){const n=+k,tt=ts[k];if(!(n>=1&&n<=4)||!OBJ(tt))continue;const s=parse(os(tt,'start')),en=parse(os(tt,'end'));if(s==null)continue;out.push({n,s,en:en!=null?en:s+120})}if(out.length){out.sort((a,b)=>a.s-b.s);return out}let s=parse(os(c,'start')),en=parse(os(c,'end'));if(s==null)s=today();if(en==null)en=s+120;return[{n:tmOf(c),s,en}]};
+const classDay=(c,e)=>{if(termAt(c,e)==null)return false;const sc=sched(c);if(sc)return OBJ(own(sc,String(wd(e))));return parseDays(os(c,'days'))[wd(e)]};
 const cancelReason=(c,events,e)=>{const h=holiday(events,e);if(h!=null)return'تعطیل: '+h;for(const o of eventsOn(events,e))if(os(o,'type')==OFF&&forClass(o,os(c,'name'))){const t=os(o,'title').trim();return'لغو'+(t==''?'':': '+t)}return null};
 const cancelEvent=(c,events,e)=>{for(const o of eventsOn(events,e))if(os(o,'type')==HOLIDAY)return o;for(const o of eventsOn(events,e))if(os(o,'type')==OFF&&forClass(o,os(c,'name')))return o;return null};
 const makeupOn=(c,events,e)=>{for(const o of eventsOn(events,e))if(os(o,'type')==MAKEUP&&os(o,'cls')!=''&&norm(os(o,'cls'))==norm(os(c,'name')))return true;return false};
 const held=(c,events,e)=>(classDay(c,e)&&cancelReason(c,events,e)==null)||makeupOn(c,events,e);
-const number=(c,events,e)=>{let s=parse(os(c,'start'));if(s==null)return 0;if(e-s>MAX_SPAN)s=e-MAX_SPAN;let n=0;for(let d=s;d<=e;d++)if(held(c,events,d))n++;return n};
+const number=(c,events,e)=>{const tt=termAt(c,e);let s=tt&&tt.s!=null?tt.s:parse(os(c,'start'));if(s==null)return 0;if(e-s>MAX_SPAN)s=e-MAX_SPAN;let n=0;for(let d=s;d<=e;d++)if(held(c,events,d))n++;return n};
 const day=(classes,events,e,clsFilter,withNumbers=true)=>{const d={day:e,holiday:holiday(events,e),items:[]},used=new Set();
 ARR(classes).forEach(c=>{if(!OBJ(c))return;const name=os(c,'name');if(clsFilter!=''&&norm(name)!=norm(clsFilter))return;let it=null;
 if(classDay(c,e)){const why=cancelReason(c,events,e);it={kind:why==null?'session':'cancelled',cls:'',time:'',title:'',note:'',type:'',reason:why==null?'':why,num:0,sort:NO_TIME,ev:null};if(why!=null){it.ev=cancelEvent(c,events,e);if(it.ev)used.add(os(it.ev,'id'))}}
 if(makeupOn(c,events,e)&&(it==null||it.kind=='cancelled'))it={kind:'makeup',cls:'',time:'',title:'',note:'',type:'',reason:'',num:0,sort:NO_TIME,ev:null};
-if(it==null)return;it.cls=name;it.time=timeAt(c,e);it.sort=startMin(it.time);if(it.kind!='cancelled'&&withNumbers)it.num=number(c,events,e);
+if(it==null)return;it.cls=name;{const tz=termAt(c,e);it.term=tz?tz.n:tmOf(c)}it.time=timeAt(c,e);it.sort=startMin(it.time);if(it.kind!='cancelled'&&withNumbers)it.num=number(c,events,e);
 if(it.kind=='makeup'){for(const o of eventsOn(events,e))if(os(o,'type')==MAKEUP&&norm(os(o,'cls'))==norm(name))it.ev=o;if(it.ev&&os(it.ev,'time').trim()!=''){it.time=os(it.ev,'time').trim();it.sort=startMin(it.time)}}d.items.push(it)});
 d.items.sort((a,b)=>a.sort!=b.sort?(a.sort<b.sort?-1:1):(norm(a.cls)<norm(b.cls)?-1:norm(a.cls)>norm(b.cls)?1:0));
 const evs=[];for(const o of eventsOn(events,e)){const t=os(o,'type');if(t==LESSON||t==HIDE||t==HOLIDAY||t==MAKEUP||t=='deleted')continue;if(used.has(os(o,'id')))continue;if(clsFilter!=''&&!forClass(o,clsFilter))continue;evs.push({kind:'event',type:t,cls:os(o,'cls'),time:os(o,'time'),title:os(o,'title'),note:os(o,'note'),reason:'',num:0,sort:startMin(os(o,'time')),ev:o})}
 evs.sort((a,b)=>a.sort<b.sort?-1:a.sort>b.sort?1:0);d.items.push(...evs);return d};
 const line=it=>{let b='';if(it.kind=='event'){b+=typeIcon(it.type)+' '+typeLabel(it.type);if(it.title!='')b+=': '+it.title;b+=it.cls!=''?' — کلاس '+it.cls:' — همه کلاس‌ها';if(it.time!='')b+=' — ساعت '+it.time;if(it.note!='')b+=' ('+it.note+')';return b}
-if(it.time!='')b+=it.time+' — ';b+='کلاس '+it.cls;if(it.kind=='cancelled')return b+' — برگزار نمی‌شود ('+it.reason+')';if(it.kind=='makeup')b+=' — جلسه جبرانی';if(it.num>0)b+=' — جلسه '+it.num;return b};
+if(it.time!='')b+=it.time+' — ';b+='کلاس '+it.cls+(it.term?' • ترم '+it.term:'');if(it.kind=='cancelled')return b+' — برگزار نمی‌شود ('+it.reason+')';if(it.kind=='makeup')b+=' — جلسه جبرانی';if(it.num>0)b+=' — جلسه '+it.num;return b};
 const counts=(classes,events,e,clsFilter)=>{let s=0,v=0;for(const it of day(classes,events,e,clsFilter,false).items){if(it.kind=='event')v++;else if(it.kind!='cancelled')s++}return[s,v]};
 const dayHeader=e=>{const j=jal(e);return DAYS[wd(e)]+' '+j[2]+' '+MONTHS[j[1]-1]+' '+j[0]+' ('+fmtJ(j[0],j[1],j[2])+')'};
 const note=(events,cls,date)=>{const l=lesson(events,cls,date);return l&&os(l,'note').trim()!=''?os(l,'note').trim():''};
@@ -718,10 +722,9 @@ for(const it of dy.items){b+='• '+line(it)+'\n';if(it.kind!='event'&&it.kind!=
 if(!any)b+='\nرویدادی ثبت نشده است.\n';return b.trim()};
 const dayText=(classes,events,e,clsFilter)=>{const dy=day(classes,events,e,clsFilter);let b='تقویم آموزشی — '+dayHeader(e)+'\n';if(dy.holiday!=null)b+='🔴 تعطیل: '+dy.holiday+'\n';if(!dy.items.length&&dy.holiday==null)b+='جلسه یا رویدادی نیست.\n';
 for(const it of dy.items){b+='• '+line(it)+'\n';if(it.kind!='event'&&it.kind!='cancelled'){const l=note(events,it.cls,fmt(e));if(l)b+='   برنامه درسی: '+l+'\n'}}return b.trim()};
-const sessions=(c,events,from,to)=>{const out=[];const s=parse(os(c,'start'));if(s==null){for(let d=from;d<=to&&d-from<=MAX_SPAN;d++)if(held(c,events,d))out.push([d,0]);return out}let n=0;const first=Math.max(s,to-MAX_SPAN);for(let d=first;d<=to;d++)if(held(c,events,d)){n++;if(d>=from)out.push([d,n])}return out};
-const classSessionsText=(c,events)=>{let s=parse(os(c,'start')),en=parse(os(c,'end'));if(s==null)s=today();if(en==null)en=s+120;let b='برنامه جلسات کلاس '+os(c,'name')+'\n';b+='روزها و ساعت: '+scheduleText(c)+'\n';
-for(const x of sessions(c,events,s,en)){const tm=timeAt(c,x[0]);b+='\nجلسه '+x[1]+' — '+dayHeader(x[0])+(tm==''?'':' — ساعت '+tm)+'\n';const l=note(events,os(c,'name'),fmt(x[0]));if(l)b+='   '+l+'\n'}return b.trim()};
-return{note,EXAM,EVENT,REG,TS,TE,MAKEUP,OFF,HOLIDAY,HIDE,LESSON,ADD_TYPES,typeLabel,typeIcon,parse,jal,epoch,monthLen,wd,fmt,fmtJ,hijri,builtinHoliday,lessonId,forClass,eventsOn,holiday,lesson,parseDays,startMin,classDay,sched,span,timeAt,scheduleText,legacySched,cancelReason,cancelEvent,makeupOn,held,number,day,line,counts,dayHeader,monthText,dayText,sessions,classSessionsText,touch,NO_TIME}})();
+const sessions=(c,events,from,to)=>{const out=[],t0=termAt(c,from);if(!(t0&&t0.s!=null)){for(let d=from;d<=to&&d-from<=MAX_SPAN;d++)if(held(c,events,d))out.push([d,0]);return out}let d0=from;if(t0.s<d0&&from-t0.s<=MAX_SPAN)d0=t0.s;let cur=null,n=0;for(let d=Math.max(d0,to-MAX_SPAN);d<=to;d++){const tz=termAt(c,d),key=tz?tz.n+':'+tz.s:'x';if(key!=cur){cur=key;n=0}if(held(c,events,d)){n++;if(d>=from)out.push([d,n])}}return out};
+const classSessionsText=(c,events)=>{let b='برنامه جلسات کلاس '+os(c,'name')+'\n';b+='روزها و ساعت: '+scheduleText(c)+'\n';for(const r of termRanges(c)){b+='\n— ترم '+r.n+': '+fmt(r.s)+' تا '+fmt(r.en)+' —\n';for(const x of sessions(c,events,r.s,r.en)){const tm=timeAt(c,x[0]);b+='\nجلسه '+x[1]+' — '+dayHeader(x[0])+(tm==''?'':' — ساعت '+tm)+'\n';const l=note(events,os(c,'name'),fmt(x[0]));if(l)b+='   '+l+'\n'}}return b.trim()};
+return{note,EXAM,EVENT,REG,TS,TE,MAKEUP,OFF,HOLIDAY,HIDE,LESSON,ADD_TYPES,typeLabel,typeIcon,parse,jal,epoch,monthLen,wd,fmt,fmtJ,hijri,builtinHoliday,lessonId,forClass,eventsOn,holiday,lesson,parseDays,startMin,classDay,termAt,termRanges,sched,span,timeAt,scheduleText,legacySched,cancelReason,cancelEvent,makeupOn,held,number,day,line,counts,dayHeader,monthText,dayText,sessions,classSessionsText,touch,NO_TIME}})();
 // ---- events in the normal backup (D.events) ----
 const EVS=()=>Array.isArray(D.events)?D.events:(D.events=[]);
 const GRD=()=>Array.isArray(D.grades)?D.grades:(D.grades=[]);
@@ -840,12 +843,12 @@ let KM=null,KC='',KD=null,KS=null,KI=[];
 const kNow=()=>{if(!KM){const j=Cal.jal(today());KM=[j[0],j[1]]}return KM};
 const clsSel=(v,fn)=>`<select style="width:auto;flex:1;margin:0" onchange="${fn}"><option value="">همه کلاس‌ها</option>${C().filter(canC).sort(cmpC).map(c=>`<option ${c.name==v?'selected':''} value="${E(c.name)}">${E(c.name)}</option>`).join('')}</select>`;
 function vK(){if(KS!=null)return kSess();if(KD!=null)return kDay();return kMonth()}
-const kCell=e=>{const dy=Cal.day(C(),EVS(),e,KC,false);return{names:dy.items.filter(i=>i.kind!='event').map(i=>({t:i.cls,k:i.kind})),ev:dy.items.filter(i=>i.kind=='event').length,holiday:dy.holiday}};
+const kCell=e=>{const dy=Cal.day(C(),EVS(),e,KC,false);return{names:dy.items.filter(i=>i.kind!='event').map(i=>({t:i.cls+(i.term?' ت'+i.term:''),k:i.kind})),ev:dy.items.filter(i=>i.kind=='event').length,holiday:dy.holiday}};
 function kMonth(){const[jy,jm]=kNow(),n=Cal.monthLen(jy,jm),first=Cal.epoch(jy,jm,1),off=Cal.wd(first),t=today(),ev=EVS();let cells=KSH.map((x,i)=>`<div class="kh${i==6?' kr':''}">${x}</div>`).join('')+'<div class="ke"></div>'.repeat(off),list='';
 for(let d=1;d<=n;d++){const e=first+d-1,h=Cal.holiday(ev,e),cd=kCell(e),due=MGR&&Fin.dueLines(FN,e).length;
 cells+=`<div class="${Cal.wd(e)==6||h?'kr ':''}${h?'kx ':''}${e==t?'kt':''}" onclick="KU.open(${e})"><b>${d}</b>${cd.names.map(x=>`<i${x.k=='cancelled'?' class="kc"':''}>${E(x.t)}</i>`).join('')}${cd.ev?`<i class="kv">📝${cd.ev}</i>`:''}${due?'<i>💰</i>':''}</div>`;
 const dy=Cal.day(C(),ev,e,KC,false),ex=dy.items.filter(i=>i.kind=='event');if(h||ex.length)list+=`<div class="card" onclick="KU.open(${e})" style="cursor:pointer"><b>${d} ${MONTHS[jm-1]}</b>${h?`<div style="color:var(--danger)">🔴 ${E(h)}</div>`:''}${ex.map(i=>`<div>${E(Cal.line(i))}</div>`).join('')}</div>`}
-return`<div class="r"><button onclick="KU.mv(-1)">▶ قبلی</button><b style="font-size:18px">${MONTHS[jm-1]} ${jy}</b><button onclick="KU.mv(1)">بعدی ◀</button></div><div class="tb"><button onclick="KU.now()">امروز</button>${clsSel(KC,'KC=this.value;draw()')}</div><div class="kg">${cells}</div><div class="m">🔴 تعطیل (مناسبت‌های قمری با محاسبه تقریبی هستند و ممکن است یک روز اختلاف داشته باشند؛ مدیر می‌تواند تعطیلی را حذف یا اضافه کند) • زیر هر روز نام کلاس‌های همان روز آمده است (خط‌خورده = جلسهٔ لغوشده)</div>`
+return`<div class="r"><button onclick="KU.mv(-1)">▶ قبلی</button><b style="font-size:18px">${MONTHS[jm-1]} ${jy}</b><button onclick="KU.mv(1)">بعدی ◀</button></div><div class="tb"><button onclick="KU.now()">امروز</button>${clsSel(KC,'KC=this.value;draw()')}</div><div class="kg">${cells}</div><div class="m">🔴 تعطیل (مناسبت‌های قمری با محاسبه تقریبی هستند و ممکن است یک روز اختلاف داشته باشند؛ مدیر می‌تواند تعطیلی را حذف یا اضافه کند) • زیر هر روز نام کلاس‌های همان روز آمده و کنار هر نام شمارهٔ ترم است (مثلاً «C ت2» یعنی کلاس C در ترم ۲؛ خط‌خورده = جلسهٔ لغوشده)</div>`
 +`<div class="tb">${MGR?'<button class="p" onclick="KU.add(null)">➕ رویداد</button>':''}<button onclick="KS=\'\';draw()">📚 جلسات کلاس‌ها</button></div><div class="tb">${xbtn('km',()=>Cal.monthText(C(),EV(),jy,jm,KC),'calendar-'+jy+'-'+p2(jm)).replace(/<button onclick="xo\('i','km'\)">[^<]*<\/button>/,'')}<button class="p" onclick="kImg()">🖼 تصویر صفحهٔ تقویم</button></div>`+(list?`<b>رویدادها و تعطیلی‌های این ماه</b>${list}`:'<div class="m">رویداد یا تعطیلی خاصی در این ماه ثبت نشده است.</div>')}
 const EV=()=>EVS();
 function kDay(){const e=KD,ev=EVS(),dy=Cal.day(C(),ev,e,KC);KI=dy.items;const ds=Cal.fmt(e);
@@ -861,9 +864,11 @@ if(MGR)h+=`<div class="tb"><button class="p" onclick="KU.add('${ds}')">➕ رو�
 return h+`<div class="tb">${xbtn('kd',()=>Cal.dayText(C(),EVS(),e,KC),'calendar-'+ds.replace(/\//g,'-'))}</div>`}
 function kSess(){const c=KS?C().find(x=>x.name==KS):null;let h=mBack('KS=null;draw()','تقویم')+`<label>کلاس<select onchange="KS=this.value;draw()"><option value="">— انتخاب کنید —</option>${C().slice().sort(cmpC).map(x=>`<option ${x.name==KS?'selected':''} value="${E(x.name)}">${E(x.name)}</option>`).join('')}</select></label>`;
 if(!c)return h+(C().length?'':'<div class="m">هنوز کلاسی ثبت نشده است.</div>');
-let s=Cal.parse(os(c,'start')),en=Cal.parse(os(c,'end'));if(s==null)s=today();if(en==null)en=s+120;const L=Cal.sessions(c,EVS(),s,en);
-h+=`<div class="m">روزها و ساعت: ${E(Cal.scheduleText(c))} • ${L.length} جلسه</div><div class="tb">${xbtn('ks',()=>Cal.classSessionsText(c,EVS()),'sessions-'+c.name.replace(/\s+/g,'_'))}</div>`;
-return h+L.map(([e,n])=>{const nt=Cal.note(EVS(),c.name,Cal.fmt(e));return`<div class="card" style="cursor:pointer" onclick="KU.ls('${E(c.name).replace(/'/g,"\\'")}',${e})"><b>جلسه ${n}</b> — ${E(Cal.dayHeader(e))}<div class="m">${nt?'📖 '+E(nt):'برنامه درسی ثبت نشده'}</div></div>`}).join('')}
+const ev0=EVS(),RG=Cal.termRanges(c);let tot=0,body='';RG.forEach(r=>{const L=Cal.sessions(c,ev0,r.s,r.en);tot+=L.length;body+='<h3>ترم '+r.n+' — '+E(Cal.fmt(r.s))+' تا '+E(Cal.fmt(r.en))+' • '+L.length+' جلسه'+(r.n==tmOf(c)?' (ترم فعلی)':'')+'</h3>'+L.map(([e,n])=>{const nt=Cal.note(EVS(),c.name,Cal.fmt(e));return`<div class="card" style="cursor:pointer" onclick="KU.ls('${E(c.name).replace(/'/g,"\\'")}',${e})"><b>جلسه ${n}</b> — ${E(Cal.dayHeader(e))}<div class="m">${nt?'📖 '+E(nt):'برنامه درسی ثبت نشده'}</div></div>`}).join('')});
+
+h+=`<div class="m">روزها و ساعت: ${E(Cal.scheduleText(c))} • ${tot} جلسه در ${RG.length} ترم</div><div class="tb">${xbtn('ks',()=>Cal.classSessionsText(c,EVS()),'sessions-'+c.name.replace(/\s+/g,'_'))}</div>`;
+
+return h+body}
 function lesDlg(cls,date){const l=Cal.lesson(EVS(),cls,date);modal('برنامه درسی — '+E(cls)+' — '+date,f('note','برنامه درسی این جلسه (خالی = پاک شود)',l?os(l,'note'):'',6),m=>{setLesson(cls,date,m.querySelector('[name=note]').value);draw()})}
 function evDlg(ev,ds,cls){const o=ev||{},cs=[['','همه کلاس‌ها'],...C().slice().sort(cmpC).map(c=>[c.name,c.name])];if(o.cls&&!cs.some(x=>x[0]==o.cls))cs.push([o.cls,o.cls]);
 const m=modal(ev?'ویرایش رویداد':'رویداد جدید',sl('type','نوع',Cal.ADD_TYPES.map(t=>[t,Cal.typeIcon(t)+' '+Cal.typeLabel(t)]),o.type||Cal.EXAM)+f('title','عنوان',o.title||'')+sl('cls','کلاس (برای تعطیلی همه کلاس‌ها)',cs,o.cls??cls??'')+f('time','ساعت (اختیاری)',o.time||'')+f('date','تاریخ (مثلاً 1405/07/13)',o.date||ds)+f('note','توضیح',o.note||'',3),m=>{const v=g(m),d=okD(v.date);if(!d)return toast('تاریخ معتبر نیست (مثلاً 1405/07/13)'),false;
